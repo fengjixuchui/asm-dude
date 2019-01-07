@@ -152,7 +152,7 @@ namespace AsmDude.QuickInfo
                     this.AsmSimGrid.Children.Add(button);
                     Grid.SetRow(button, row);
                     Grid.SetColumn(button, 1);
-                    button.Click += (sender, e) => this.Update_Async(sender as Button).ConfigureAwait(false);
+                    button.Click += (sender, e) => { this.Update_Async(sender as Button).ConfigureAwait(false); };
                 }
                 else
                 {
@@ -164,13 +164,12 @@ namespace AsmDude.QuickInfo
 
         private async System.Threading.Tasks.Task Update_Async(Button button)
         {
-            if (button == null) return;
-            if (this._asmSimulator == null) return;
-
             try
             {
-                if (!ThreadHelper.CheckAccess())
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                if (button == null) return;
+                if (this._asmSimulator == null) return;
 
                 ButtonInfo info = (ButtonInfo)button.Tag;
 
@@ -183,8 +182,8 @@ namespace AsmDude.QuickInfo
             }
             catch (Exception e)
             {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Async; e={1}", this.ToString(), e.ToString()));
-            }
+                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}: Update_Async: exception={1}", this.ToString(), e.ToString()));
+            };
         }
     }
 }

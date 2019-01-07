@@ -37,8 +37,7 @@ namespace AsmDude.QuickInfo
     internal sealed class AsmQuickInfoController : IIntellisenseController
     {
         private readonly IList<ITextBuffer> _subjectBuffers;
-        private readonly IQuickInfoBroker _quickInfoBroker;
-        private IQuickInfoSession _session;
+        private readonly IAsyncQuickInfoBroker _quickInfoBroker;
         private ITextView _textView;
 
         private Window _legacyTooltipWindow;
@@ -47,7 +46,7 @@ namespace AsmDude.QuickInfo
         internal AsmQuickInfoController(
             ITextView textView,
             IList<ITextBuffer> subjectBuffers,
-            IQuickInfoBroker quickInfoBroker)
+            IAsyncQuickInfoBroker quickInfoBroker)
         {
             //AsmDudeToolsStatic.Output_INFO("AsmQuickInfoController:constructor: file=" + AsmDudeToolsStatic.GetFileName(textView.TextBuffer));
             this._textView = textView;
@@ -70,17 +69,17 @@ namespace AsmDude.QuickInfo
 
         public void ConnectSubjectBuffer(ITextBuffer subjectBuffer)
         {
-            AsmDudeToolsStatic.Output_INFO("AsmQuickInfoController:ConnectSubjectBuffer");
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:ConnectSubjectBuffer", this.ToString()));
         }
 
         public void DisconnectSubjectBuffer(ITextBuffer subjectBuffer)
         {
-            AsmDudeToolsStatic.Output_INFO("AsmQuickInfoController:DisconnectSubjectBuffer");
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}::DisconnectSubjectBuffer", this.ToString()));
         }
 
         public void Detach(ITextView textView)
         {
-            AsmDudeToolsStatic.Output_INFO("AsmQuickInfoController:Detach");
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:Detach", this.ToString()));
             if (this._textView == textView)
             {
                 this._textView.MouseHover -= this.OnTextViewMouseHover;
@@ -93,9 +92,9 @@ namespace AsmDude.QuickInfo
         /// </summary>
         private void OnTextViewMouseHover(object sender, MouseHoverEventArgs e)
         {
-            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: file={1}", this.ToString(), AsmDudeToolsStatic.GetFilename(this._textView.TextBuffer)));
             try
             {
+                //AsmDudeToolsStatic.Output_INFO("AsmQuickInfoController:OnTextViewMouseHover: file=" + AsmDudeToolsStatic.GetFileName(this._textView.TextBuffer));
                 SnapshotPoint? point = this.GetMousePosition(new SnapshotPoint(this._textView.TextSnapshot, e.Position));
                 if (point.HasValue)
                 {
@@ -109,42 +108,28 @@ namespace AsmDude.QuickInfo
                         //ITrackingPoint triggerPoint = point.Value.Snapshot.CreateTrackingPoint(pos, PointTrackingMode.Positive);
                         ITrackingPoint triggerPoint = point.Value.Snapshot.CreateTrackingPoint(pos2, PointTrackingMode.Positive);
 
-                        if (this._session == null)
+                        if (this._quickInfoBroker.IsQuickInfoActive(this._textView))
                         {
-                            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: A: session was null, create a new session for triggerPoint {1}; pos2={2}", this.ToString(), pos, pos2));
-                            this._session = this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);
-                            if (this._session != null)
+                            IAsyncQuickInfoSession current_Session = this._quickInfoBroker.GetSession(this._textView);
+                            if (current_Session.ApplicableToSpan.GetSpan(this._textView.TextSnapshot).IntersectsWith(new Span(point.Value.Position, 0)))
                             {
-                                this._session.Dismissed += this._session_Dismissed;
-                                //this._session.ApplicableToSpanChanged += (o, i) => { AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:ApplicableToSpanChanged Event"); };
-                                //this._session.PresenterChanged += (o, i) => { AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:PresenterChanged Event"); };
-                                //this._session.Recalculated += (o, i) => { AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:Recalculated Event"); };
+                                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: A: quickInfoBroker is already active: intersects!", this.ToString()));
+                                //var x = current_Session.HasInteractiveContent;
+                            }
+                            else
+                            {
+                                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: B: quickInfoBroker is already active, but we need a new session at {1}; pos2={2}", this.ToString(), pos, pos2));
+                                current_Session.DismissAsync().ConfigureAwait(false);
+                                this._quickInfoBroker.TriggerQuickInfoAsync(this._textView, triggerPoint, QuickInfoSessionOptions.None).ConfigureAwait(false);
                             }
                         }
                         else
                         {
-                            if (this._session.IsDismissed)
-                            {
-                                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: B: session was not null but was dismissed, create a new session  for triggerPoint {1}; pos2={2}", this.ToString(), pos, pos2));
-
-                                this._session = this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);
-                                if (this._session != null) this._session.Dismissed += this._session_Dismissed;
-                            }
-                            else
-                            {
-                                if (this._session.ApplicableToSpan.GetSpan(this._textView.TextSnapshot).IntersectsWith(new Span(point.Value.Position, 0)))
-                                {
-                                    AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: C: session was not dismissed: intersects!", this.ToString()));
-                                }
-                                else
-                                {
-                                    AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: D: session  was not dismissed but we need a new session for triggerPoint {1}; pos2={2}", this.ToString(), pos, pos2));
-
-                                    //if (this._session != null) this._session.Dismiss();
-                                    this._session = this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);
-                                    if (this._session != null) this._session.Dismissed += this._session_Dismissed;
-                                }
-                            }
+                            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: C: quickInfoBroker was not active, create a new session for triggerPoint {1}; pos2={2}", this.ToString(), pos, pos2));
+                            var session = this._quickInfoBroker.TriggerQuickInfoAsync(this._textView, triggerPoint, QuickInfoSessionOptions.None);
+                            IAsyncQuickInfoSession current_Session2 = this._quickInfoBroker.GetSession(this._textView);
+                            //current_Session2.HasInteractiveContent = true;
+                            //var x = current_Session2.Options;
                         }
                     }
                     else if (contentType.Equals(AsmDudePackage.DisassemblyContentType, StringComparison.Ordinal))
@@ -165,14 +150,13 @@ namespace AsmDude.QuickInfo
             }
             catch (Exception e2)
             {
-                AsmDudeToolsStatic.Output_WARNING("AsmQuickInfoController:OnTextViewMouseHover: e=" + e2.Message);
+                AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:OnTextViewMouseHover: e={1}", this.ToString(), e2));
             }
         }
 
         private void _session_Dismissed(object sender, EventArgs e)
         {
             AsmDudeToolsStatic.Output_INFO(string.Format("{0}:_session_Dismissed: e={1}", this.ToString(), e));
-            this._session = null;
         }
 
         /// <summary>
@@ -213,8 +197,6 @@ namespace AsmDude.QuickInfo
         public void CloseToolTip()
         {
             this._legacyTooltipWindow?.Close();
-            this._session?.Dismiss();
-            this._session = null;
         }
 
         private void ToolTipLegacy(SnapshotPoint triggerPoint, Point p)
@@ -254,7 +236,7 @@ namespace AsmDude.QuickInfo
                 // cleanup old window remnants
                 if (this._legacyTooltipWindow != null)
                 {
-                    AsmDudeToolsStatic.Output_INFO("AsmQuickInfoController:ToolTipLegacy: going to cleanup old window remnants.");
+                    AsmDudeToolsStatic.Output_INFO(string.Format("{0}:ToolTipLegacy: going to cleanup old window remnants.", this.ToString()));
                     if (this._legacyTooltipWindow.IsLoaded)
                     {
                         this._legacyTooltipWindow = null;
@@ -283,7 +265,7 @@ namespace AsmDude.QuickInfo
                     }
                     catch (Exception e)
                     {
-                        AsmDudeToolsStatic.Output_WARNING("AsmQuickInfoController:LostKeyboardFocus: e=" + e.Message);
+                        AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:LostKeyboardFocus: e={1}", this.ToString(), e.Message));
                     }
                 };
                 this._legacySpan = span;

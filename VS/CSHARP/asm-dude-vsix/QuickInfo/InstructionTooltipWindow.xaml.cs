@@ -42,7 +42,7 @@ namespace AsmDude.QuickInfo
         private AsmSimulator _asmSimulator;
 
         internal AsmQuickInfoController Owner { get; set; }
-        internal IQuickInfoSession Session { get; set; }
+        internal IAsyncQuickInfoSession Session { get; set; }
 
         public InstructionTooltipWindow(Brush foreground)
         {
@@ -74,15 +74,15 @@ namespace AsmDude.QuickInfo
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:CloseButton_Click");
-            if (this.Owner != null) this.Owner.CloseToolTip();
-            if (this.Session != null) this.Session.Dismiss();
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:CloseButton_Click: owner and session are null");
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:CloseButton_Click", this.ToString()));
+            this?.Owner?.CloseToolTip(); // monadic null check
+            this?.Session?.DismissAsync(); // monadic null check
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:CloseButton_Click: owner and session are null", this.ToString()));
         }
 
         private void PerformanceExpander_Click(object sender, RoutedEventArgs e)
         {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:PerformanceExpander_Click");
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:PerformanceExpander_Click", this.ToString()));
             e.Handled = true;
         }
 
@@ -292,8 +292,7 @@ namespace AsmDude.QuickInfo
                     this.AsmSimGrid.Children.Add(button);
                     Grid.SetRow(button, row);
                     Grid.SetColumn(button, column);
-                    //TODO: is the following Event handler ever unsubscribed?
-                    button.Click += (sender, e) => this.Update_Async(sender as Button).ConfigureAwait(false);
+                    button.Click += (sender, e) => { this.Update_Async(sender as Button).ConfigureAwait(false); };
                 }
                 else
                 {
@@ -336,7 +335,7 @@ namespace AsmDude.QuickInfo
                     this.AsmSimGrid.Children.Add(button);
                     Grid.SetRow(button, row);
                     Grid.SetColumn(button, column);
-                    button.Click += (sender, e) => this.Update_Async(sender as Button).ConfigureAwait(false);
+                    button.Click += (sender, e) => { this.Update_Async(sender as Button).ConfigureAwait(false); };
                 }
                 else
                 {
@@ -359,14 +358,14 @@ namespace AsmDude.QuickInfo
                 ButtonInfo info = (ButtonInfo)button.Tag;
                 info.text.Text = (info.reg == Rn.NOREG)
                     ? info.flag.ToString() + " = " + this._asmSimulator.Get_Flag_Value_and_Block(info.flag, this._lineNumber, info.before)
-                    : info.reg.ToString() + " = " + this._asmSimulator.Get_Register_Value_and_Block(info.reg, this._lineNumber, info.before, AsmSourceTools.ParseNumeration(Settings.Default.AsmSim_Show_Register_In_Instruction_Tooltip_Numeration));
+                    : info.text.Text = info.reg.ToString() + " = " + this._asmSimulator.Get_Register_Value_and_Block(info.reg, this._lineNumber, info.before, AsmSourceTools.ParseNumeration(Settings.Default.AsmSim_Show_Register_In_Instruction_Tooltip_Numeration));
 
                 info.text.Visibility = Visibility.Visible;
                 button.Visibility = Visibility.Collapsed;
             }
             catch (Exception e)
             {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Async; e={1}", this.ToString(), e.ToString()));
+                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Async; exception={1}", this.ToString(), e));
             };
         }
     }
