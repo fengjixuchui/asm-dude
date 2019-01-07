@@ -20,32 +20,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.Language.Intellisense;
+using AsmDude.Tools;
+using Microsoft.VisualStudio.Language.Intellisense.AsyncCompletion;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
 namespace AsmDude.CodeCompletion
 {
-    [Export(typeof(IVsTextViewCreationListener))]
+    [Export(typeof(IAsyncCompletionCommitManagerProvider))]
+    [Name("AsmDude CompletionCommitManagerProvider")]
     [ContentType(AsmDudePackage.AsmDudeContentType)]
-    [TextViewRole(PredefinedTextViewRoles.Interactive)]
-    internal sealed class VsTextViewCreationListener : IVsTextViewCreationListener
+    class CodeCompletionCommitManagerProvider : IAsyncCompletionCommitManagerProvider
     {
-        [Import]
-        private IVsEditorAdaptersFactoryService _adaptersFactory = null;
+        IDictionary<ITextView, IAsyncCompletionCommitManager> _cache = new Dictionary<ITextView, IAsyncCompletionCommitManager>();
 
-        [Import]
-        private ICompletionBroker _completionBroker = null;
-
-        public void VsTextViewCreated(IVsTextView textViewAdapter)
+        public IAsyncCompletionCommitManager GetOrCreate(ITextView textView)
         {
-            IWpfTextView view = this._adaptersFactory.GetWpfTextView(textViewAdapter);
-            CodeCompletionCommandFilter filter = new CodeCompletionCommandFilter(view, this._completionBroker);
-            textViewAdapter.AddCommandFilter(filter, out var next);
-            filter.NextCommandHandler = next;
+            if (this._cache.TryGetValue(textView, out var itemSource))
+            {
+                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:GetOrCreate: returning cached CompletionCommitManager", this.ToString()));
+                return itemSource;
+            }
+            else
+            {
+                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:GetOrCreate: returning cached CompletionCommitManager", this.ToString()));
+                var manager = new CodeCompletionCommitManager();
+                textView.Closed += (o, e) => this._cache.Remove(textView); // clean up memory as files are closed
+                this._cache.Add(textView, manager);
+                return manager;
+            }
         }
     }
 }

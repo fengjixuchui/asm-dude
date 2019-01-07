@@ -21,21 +21,21 @@
 // SOFTWARE.
 
 using AsmDude.Tools;
-using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.Language.Intellisense.AsyncCompletion;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
-using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
 namespace AsmDude
 {
-    [Export(typeof(ICompletionSourceProvider))]
+    [Export(typeof(IAsyncCompletionSourceProvider))]
     [ContentType(AsmDudePackage.AsmDudeContentType)]
     [Name("asmCompletion")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    public sealed class CodeCompletionSourceProvider : ICompletionSourceProvider
+    public sealed class CodeCompletionSourceProvider : IAsyncCompletionSourceProvider
     {
         [Import]
         private IBufferTagAggregatorFactoryService _aggregatorFactory = null;
@@ -46,15 +46,28 @@ namespace AsmDude
         [Import]
         private IContentTypeRegistryService _contentService = null;
 
-        public ICompletionSource TryCreateCompletionSource(ITextBuffer buffer)
+        private IDictionary<ITextView, IAsyncCompletionSource> _cache = new Dictionary<ITextView, IAsyncCompletionSource>();
+
+        public IAsyncCompletionSource GetOrCreate(ITextView textView)
         {
-            CodeCompletionSource sc()
+            if (this._cache.TryGetValue(textView, out var itemSource))
             {
+                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:GetOrCreate: returning cached CompletionSource", this.ToString()));
+                return itemSource;
+            }
+            else
+            {
+                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:GetOrCreate: creating new CompletionSource", this.ToString()));
+
+                var buffer = textView.TextBuffer;
                 var labelGraph = AsmDudeToolsStatic.GetOrCreate_Label_Graph(buffer, this._aggregatorFactory, this._docFactory, this._contentService);
                 var asmSimulator = AsmSimulator.GetOrCreate_AsmSimulator(buffer, this._aggregatorFactory);
-                return new CodeCompletionSource(buffer, labelGraph, asmSimulator);
+                var source = new CodeCompletionSource(labelGraph, asmSimulator); // opportunity to pass in MEF parts
+
+                textView.Closed += (o, e) => this._cache.Remove(textView); // clean up memory as files are closed
+                this._cache.Add(textView, source);
+                return source;
             }
-            return buffer.Properties.GetOrCreateSingletonProperty(sc);
         }
     }
 }
