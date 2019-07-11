@@ -202,18 +202,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsmDoc\AsmDocClassificationFormat.cs" />
-    <Compile Include="AsmDoc\AsmDocClassificationDefinition.cs" />
-    <Compile Include="AsmDoc\AsmDocKeyProcessor.cs" />
-    <Compile Include="AsmDoc\AsmDocKeyProcessorProvider.cs" />
-    <Compile Include="AsmDoc\AsmDocMouseHandler.cs" />
-    <Compile Include="AsmDoc\AsmDocMouseHandlerProvider.cs" />
-    <Compile Include="AsmDoc\AsmDocUnderlineTagger.cs" />
-    <Compile Include="AsmDoc\AsmDocUnderlineTaggerProvider.cs" />
-    <Compile Include="AsmDoc\CtrlKeyState.cs" />
     <Compile Include="AsmDudePackage.cs" />
-    <Compile Include="ClearMefCache\ClearMefCache.cs" />
-    <Compile Include="ClearMefCache\ComponentModelExtensions.cs" />
     <Compile Include="QuickInfo\ButtonInfo.cs" />
     <Compile Include="QuickInfo\InstructionTooltipWindow.xaml.cs">
       <DependentUpon>InstructionTooltipWindow.xaml</DependentUpon>
@@ -227,19 +216,7 @@
     <Compile Include="SyntaxHighlighting\NasmAttDisassemblyTokenTagger.cs" />
     <Compile Include="SyntaxHighlighting\NasmAttTokenTagger.cs" />
     <Compile Include="Tools\AsmSimulator.cs" />
-    <Compile Include="BraceMatching\BraceMatchingTagger.cs" />
-    <Compile Include="BraceMatching\BraceMatchingTaggerProvider.cs" />
-    <Compile Include="CodeCompletion\CodeCompletionCommandFilter.cs" />
-    <Compile Include="CodeCompletion\CodeCompletionSource.cs" />
-    <Compile Include="CodeCompletion\CodeCompletionSourceProvider.cs" />
-    <Compile Include="CodeCompletion\VsTextViewCreationListener.cs" />
-    <Compile Include="CodeFolding\CodeFoldingTagger.cs" />
-    <Compile Include="CodeFolding\CodeFoldingTaggerProvider.cs" />
     <Compile Include="Tools\AsmMessageEnum.cs" />
-    <Compile Include="Squiggles\SquigglesTagger.cs" />
-    <Compile Include="Squiggles\SquigglesTaggerProvider.cs" />
-    <Compile Include="HighlightWord\HighlightWordTagger.cs" />
-    <Compile Include="HighlightWord\HighlightWordTaggerProvider.cs" />
     <Compile Include="OptionsPage\AsmDudeOptionPageUI.xaml.cs">
       <DependentUpon>AsmDudeOptionPageUI.xaml</DependentUpon>
     </Compile>
@@ -260,14 +237,6 @@
     <Compile Include="source.extension.cs">
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
     </Compile>
-    <Compile Include="SignatureHelp\AsmParameter.cs" />
-    <Compile Include="SignatureHelp\AsmSignature.cs" />
-    <Compile Include="SignatureHelp\AsmSignatureElement.cs" />
-    <Compile Include="SignatureHelp\AsmSignatureEnum.cs" />
-    <Compile Include="SignatureHelp\AsmSignatureHelpCommandFilter.cs" />
-    <Compile Include="SignatureHelp\AsmSignatureHelpCommandProvider.cs" />
-    <Compile Include="SignatureHelp\AsmSignatureHelpSource.cs" />
-    <Compile Include="SignatureHelp\AsmSignatureHelpSourceProvider.cs" />
     <Compile Include="SyntaxHighlighting\AsmClassificationDefinition.cs" />
     <Compile Include="SyntaxHighlighting\AsmTagger.cs" />
     <Compile Include="SyntaxHighlighting\AsmTaggerProvider.cs" />
@@ -284,7 +253,6 @@
     <Compile Include="Tools\Delay.cs" />
     <Compile Include="Tools\LineUpdatedEventArgs.cs" />
     <Compile Include="Tools\LabelGraph.cs" />
-    <Compile Include="Tools\MnemonicStore.cs" />
     <Compile Include="Tools\PerformanceStore.cs" />
   </ItemGroup>
   <ItemGroup>

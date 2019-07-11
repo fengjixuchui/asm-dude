@@ -210,36 +210,13 @@ namespace AsmDude.OptionsPage
         {
             string MakeToolTip()
             {
-                MnemonicStore store = AsmDudeTools.Instance.Mnemonic_Store;
-                SortedSet<Mnemonic> usedMnemonics = new SortedSet<Mnemonic>();
-
-                foreach (Mnemonic mnemonic in Enum.GetValues(typeof(Mnemonic)).Cast<Mnemonic>())
-                {
-                    if (store.GetArch(mnemonic).Contains(arch))
-                    {
-                        usedMnemonics.Add(mnemonic);
-                    }
-                }
                 StringBuilder sb = new StringBuilder();
                 string docArch = ArchTools.ArchDocumentation(arch);
                 if (docArch.Length > 0)
                 {
                     sb.Append(docArch + ":\n");
                 }
-                if (usedMnemonics.Count > 0)
-                {
-                    foreach (Mnemonic mnemonic in usedMnemonics)
-                    {
-                        sb.Append(mnemonic.ToString());
-                        sb.Append(", ");
-                    }
-                    sb.Length -= 2; // get rid of last comma.
-                }
-                else
-                {
-                    sb.Append("empty");
-                }
-                return AsmSourceTools.Linewrap(sb.ToString(), AsmDudePackage.maxNumberOfCharsInToolTips);
+                 return AsmSourceTools.Linewrap(sb.ToString(), AsmDudePackage.maxNumberOfCharsInToolTips);
             }
             void SetToolTip(string tooltip)
             {
@@ -958,7 +935,6 @@ namespace AsmDude.OptionsPage
             if (changed)
             {
                 Settings.Default.Save();
-                await ClearMefCache.ClearMefCache.ClearAsync();
             }
             if (restartNeeded)
             {
@@ -967,7 +943,6 @@ namespace AsmDude.OptionsPage
 
                 if (MessageBox.Show(text1, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    await ClearMefCache.ClearMefCache.RestartAsync();
                 }
                 else
                 {

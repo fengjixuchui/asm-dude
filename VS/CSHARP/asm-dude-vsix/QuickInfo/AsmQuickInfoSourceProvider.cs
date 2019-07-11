@@ -39,24 +39,13 @@ namespace AsmDude.QuickInfo
     //internal sealed class QuickInfoSourceProvider : IAsyncQuickInfoSourceProvider //XYZZY NEW
     internal sealed class AsmQuickInfoSourceProvider : IQuickInfoSourceProvider //XYZZY OLD
     {
-        [Import]
-        private readonly IBufferTagAggregatorFactoryService _aggregatorFactory = null;
-
-        [Import]
-        private readonly ITextDocumentFactoryService _docFactory = null;
-
-        [Import]
-        private readonly IContentTypeRegistryService _contentService = null;
-
         //public IAsyncQuickInfoSource TryCreateQuickInfoSource(ITextBuffer textBuffer) //XYZZY NEW
         public IQuickInfoSource TryCreateQuickInfoSource(ITextBuffer textBuffer) //XYZZY OLD
         {
             AsmDudeToolsStatic.Output_INFO(string.Format("{0}:TryCreateQuickInfoSource", this.ToString()));
             AsmQuickInfoSource sc()
             {
-                LabelGraph labelGraph = AsmDudeToolsStatic.GetOrCreate_Label_Graph(textBuffer, this._aggregatorFactory, this._docFactory, this._contentService);
-                AsmSimulator asmSimulator = AsmSimulator.GetOrCreate_AsmSimulator(textBuffer, this._aggregatorFactory);
-                return new AsmQuickInfoSource(textBuffer, this._aggregatorFactory, labelGraph, asmSimulator);
+               return new AsmQuickInfoSource(textBuffer);
             }
             return textBuffer.Properties.GetOrCreateSingletonProperty(sc);
         }

@@ -7,8 +7,8 @@
              MinWidth="200"
              MinHeight="20"
              Focusable="True">
-<!--    <Expander x:Name="MyExpander" IsExpanded="False" >Bla</Expander>-->
-    <StackPanel GotMouseCapture="StackPanel_Click">
+    <Expander x:Name="MyExpander" IsExpanded="False" >Bla</Expander>
+<!--    <StackPanel GotMouseCapture="StackPanel_Click">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -72,5 +72,5 @@
                 </ScrollViewer>
             </Expander>
         </Border>
-    </StackPanel>
+    </StackPanel>-->
 </UserControl>
