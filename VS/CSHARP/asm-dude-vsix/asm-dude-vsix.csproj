@@ -46,7 +46,8 @@
     <RootNamespace>AsmDude</RootNamespace>
     <AssemblyName>AsmDude</AssemblyName>
     <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
@@ -97,19 +98,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="AsmDudePackage.ico" />
-    <Content Include="libz3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Microsoft.Z3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <Content Include="LICENSE.txt" />
     <Content Include="Resources\AsmDudeData.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -168,7 +158,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Key.snk" />
     <Content Include="Resources\Performance\Skylake.tsv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -193,10 +182,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -206,21 +191,11 @@
     <Compile Include="QuickInfo\InstructionTooltipWindow.xaml.cs">
       <DependentUpon>InstructionTooltipWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="QuickInfo\RegisterTooltipWindow.xaml.cs">
-      <DependentUpon>RegisterTooltipWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Guids.cs" />
     <Compile Include="QuickInfo\AsmQuickInfoController.cs" />
     <Compile Include="QuickInfo\AsmQuickInfoControllerProvider.cs" />
     <Compile Include="QuickInfo\AsmQuickInfoSource.cs" />
     <Compile Include="QuickInfo\AsmQuickInfoSourceProvider.cs" />
-    <Compile Include="Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="source.extension.cs">
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
     </Compile>
@@ -238,21 +213,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\asm-sim-lib\asm-sim-lib.csproj">
-      <Project>{e0d833c8-652e-4026-bdc1-13568940b1a8}</Project>
-      <Name>asm-sim-lib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\asm-tools-lib\asm-tools-lib.csproj">
-      <Project>{9f5c800f-83f8-4866-ae3c-97602b39c536}</Project>
-      <Name>asm-tools-lib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Page Include="QuickInfo\InstructionTooltipWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="QuickInfo\RegisterTooltipWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
