@@ -20,20 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using AsmDude.SyntaxHighlighting;
 using AsmDude.Tools;
-using AsmTools;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
 
 namespace AsmDude.QuickInfo
 {
@@ -45,10 +36,7 @@ namespace AsmDude.QuickInfo
     {
         private readonly ITextBuffer _textBuffer;
 
-        public object CSharpEditorResources { get; private set; }
-
-        public AsmQuickInfoSource(
-                ITextBuffer textBuffer)
+        public AsmQuickInfoSource(ITextBuffer textBuffer)
         {
             this._textBuffer = textBuffer ?? throw new ArgumentNullException(nameof(textBuffer));
         }
@@ -61,7 +49,7 @@ namespace AsmDude.QuickInfo
             {
                 var line = triggerPoint.Value.GetContainingLine();
                 applicableToSpan = this._textBuffer.CurrentSnapshot.CreateTrackingSpan(line.Extent, SpanTrackingMode.EdgeInclusive);
-                quickInfoContent.Add(new InstructionTooltipWindow(AsmDudeToolsStatic.GetFontColor()));
+                quickInfoContent.Add(new InstructionTooltipWindow());
             }
         }
 

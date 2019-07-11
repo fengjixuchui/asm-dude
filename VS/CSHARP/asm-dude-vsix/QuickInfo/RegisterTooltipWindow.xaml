@@ -7,44 +7,5 @@
              MinWidth="200"
              MinHeight="50"
              Focusable="True">
-    <UserControl.InputBindings>
-        <KeyBinding Key="Escape" Command="{Binding Path=CloseCommand, Mode=OneTime}" CommandTarget="{Binding ElementName=MainWindow}" />
-    </UserControl.InputBindings>
-    <StackPanel>
-        <TextBlock x:Name="Description" TextWrapping="Wrap"/>
-        <Border x:Name="AsmSimGridBorder" BorderBrush = "LightGray" CornerRadius="2" BorderThickness="1" Margin="0,6,0,0" Visibility="Collapsed">
-            <Expander x:Name="AsmSimGridExpander" Visibility="Collapsed" IsExpanded="False">
-                <Expander.Header>
-                    <DockPanel LastChildFill="False">
-                        <Label DockPanel.Dock="Left">
-                            <Label.VerticalAlignment>Center</Label.VerticalAlignment>
-                            <Label.VerticalContentAlignment>Center</Label.VerticalContentAlignment>
-                            <Label.Content>Register Contents</Label.Content>
-                        </Label>
-                        <ComboBox x:Name="AsmSimGridExpanderNumeration" DockPanel.Dock="Right">
-                            <ComboBox.VerticalAlignment>Center</ComboBox.VerticalAlignment>
-                            <ComboBox.VerticalContentAlignment>Center</ComboBox.VerticalContentAlignment>
-                            <ComboBox.Items>
-                                <ComboBoxItem>HEX</ComboBoxItem>
-                                <ComboBoxItem>BIN</ComboBoxItem>
-                                <ComboBoxItem>DEC</ComboBoxItem>
-                                <ComboBoxItem>OCT</ComboBoxItem>
-                            </ComboBox.Items>
-                        </ComboBox>
-                    </DockPanel>
-                </Expander.Header>
-                <Grid x:Name="AsmSimGrid">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                </Grid>
-            </Expander>
-        </Border>
-    </StackPanel>
+    <Expander x:Name="MyExpander2" IsExpanded="False" >Bla</Expander>
 </UserControl>

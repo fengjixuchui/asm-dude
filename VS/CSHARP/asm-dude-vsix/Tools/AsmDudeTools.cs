@@ -45,7 +45,6 @@ namespace AsmDude
         private readonly ISet<Rn> _register_switched_on;
 
         private readonly ErrorListProvider _errorListProvider;
-        private readonly PerformanceStore _performanceStore;
         private readonly SmartThreadPool _threadPool;
 
         #region Singleton Stuff
@@ -79,9 +78,6 @@ namespace AsmDude
             {
                 string filename_Regular = path + "signature-may2019.txt";
                 string filename_Hand = path + "signature-hand-1.txt";
-            }
-            {
-                this._performanceStore = new PerformanceStore(path + "Performance" + Path.DirectorySeparatorChar);
             }
             #endregion
 
@@ -138,8 +134,6 @@ namespace AsmDude
         }
 
         public ErrorListProvider Error_List_Provider { get { return this._errorListProvider; } }
-
-        public PerformanceStore Performance_Store { get { return this._performanceStore; } }
 
         public SmartThreadPool Thread_Pool { get { return this._threadPool; } }
 

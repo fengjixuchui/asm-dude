@@ -60,20 +60,6 @@ namespace AsmDude.Tools
             return buffer.Properties.GetOrCreateSingletonProperty(sc);
         }
 
-        public static LabelGraph GetOrCreate_Label_Graph(
-            ITextBuffer buffer,
-            IBufferTagAggregatorFactoryService aggregatorFactory,
-            ITextDocumentFactoryService docFactory,
-            IContentTypeRegistryService contentService)
-        {
-            LabelGraph sc1()
-            {
-                IContentType contentType = contentService.GetContentType(AsmDudePackage.AsmDudeContentType);
-                return new LabelGraph(buffer, aggregatorFactory, AsmDudeTools.Instance.Error_List_Provider, docFactory, contentType);
-            }
-            return buffer.Properties.GetOrCreateSingletonProperty(sc1);
-        }
-
         public static void Print_Speed_Warning(DateTime startTime, string component)
         {
             double elapsedSec = (double)(DateTime.Now.Ticks - startTime.Ticks) / 10000000;

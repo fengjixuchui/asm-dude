@@ -33,7 +33,6 @@ namespace AsmDude.QuickInfo
     //[Export(typeof(IAsyncQuickInfoSourceProvider))] //XYZZY NEW
     [Export(typeof(IQuickInfoSourceProvider))] //XYZZY OLD
     [ContentType(AsmDudePackage.AsmDudeContentType)]
-    [TextViewRole(PredefinedTextViewRoles.Debuggable)]
     [Name("AsmQuickInfoSourceProvider")]
     [Order]
     //internal sealed class QuickInfoSourceProvider : IAsyncQuickInfoSourceProvider //XYZZY NEW
@@ -43,11 +42,7 @@ namespace AsmDude.QuickInfo
         public IQuickInfoSource TryCreateQuickInfoSource(ITextBuffer textBuffer) //XYZZY OLD
         {
             AsmDudeToolsStatic.Output_INFO(string.Format("{0}:TryCreateQuickInfoSource", this.ToString()));
-            AsmQuickInfoSource sc()
-            {
-               return new AsmQuickInfoSource(textBuffer);
-            }
-            return textBuffer.Properties.GetOrCreateSingletonProperty(sc);
+            return textBuffer.Properties.GetOrCreateSingletonProperty(() => new AsmQuickInfoSource(textBuffer));
         }
     }
 }

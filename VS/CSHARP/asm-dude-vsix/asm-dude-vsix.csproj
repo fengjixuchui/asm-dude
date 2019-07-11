@@ -203,7 +203,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsmDudePackage.cs" />
-    <Compile Include="QuickInfo\ButtonInfo.cs" />
     <Compile Include="QuickInfo\InstructionTooltipWindow.xaml.cs">
       <DependentUpon>InstructionTooltipWindow.xaml</DependentUpon>
     </Compile>
@@ -215,7 +214,6 @@
     <Compile Include="SyntaxHighlighting\AsmDisassemblyTokenTagProvider.cs" />
     <Compile Include="SyntaxHighlighting\NasmAttDisassemblyTokenTagger.cs" />
     <Compile Include="SyntaxHighlighting\NasmAttTokenTagger.cs" />
-    <Compile Include="Tools\AsmSimulator.cs" />
     <Compile Include="Tools\AsmMessageEnum.cs" />
     <Compile Include="OptionsPage\AsmDudeOptionPageUI.xaml.cs">
       <DependentUpon>AsmDudeOptionPageUI.xaml</DependentUpon>
@@ -252,8 +250,6 @@
     <Compile Include="Tools\AsmDudeToolsStatic.cs" />
     <Compile Include="Tools\Delay.cs" />
     <Compile Include="Tools\LineUpdatedEventArgs.cs" />
-    <Compile Include="Tools\LabelGraph.cs" />
-    <Compile Include="Tools\PerformanceStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VSPackage.resx">

@@ -20,17 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using AsmDude.SyntaxHighlighting;
 using AsmDude.Tools;
 using AsmTools;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace AsmDude.QuickInfo
 {
@@ -46,7 +42,7 @@ namespace AsmDude.QuickInfo
             IList<ITextBuffer> subjectBuffers,
             IQuickInfoBroker quickInfoBroker)
         {
-            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:constructor; file={1}", this.ToString(), AsmDudeToolsStatic.GetFilename(textView.TextBuffer)));
+            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:constructor", this.ToString()));
             this._textView = textView ?? throw new ArgumentNullException(nameof(textView));
             this._subjectBuffers = subjectBuffers ?? throw new ArgumentNullException(nameof(subjectBuffers));
             this._quickInfoBroker = quickInfoBroker ?? throw new ArgumentNullException(nameof(quickInfoBroker));
@@ -75,68 +71,42 @@ namespace AsmDude.QuickInfo
 
         private void OnTextViewMouseHover(object sender, MouseHoverEventArgs e)
         {
-            try
+            SnapshotPoint? point = this.GetMousePosition(new SnapshotPoint(this._textView.TextSnapshot, e.Position));
+            if (point.HasValue)
             {
-                string contentType = this._textView.TextBuffer.ContentType.DisplayName;
-                if (contentType.Equals(AsmDudePackage.AsmDudeContentType, StringComparison.Ordinal))
+                int pos = point.Value.Position;
+
+                ITrackingPoint triggerPoint = point.Value.Snapshot.CreateTrackingPoint(pos, PointTrackingMode.Positive);
+
+                if (this._quickInfoBroker.IsQuickInfoActive(this._textView))
                 {
-                    AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: Quickinfo for regular view. file={1}", this.ToString(), AsmDudeToolsStatic.GetFilename(this._textView.TextBuffer)));
-                    SnapshotPoint? point = this.GetMousePosition(new SnapshotPoint(this._textView.TextSnapshot, e.Position));
-                    if (point.HasValue)
+                    //IAsyncQuickInfoSession current_Session = this._quickInfoBroker.GetSession(this._textView); //XYZZY NEW
+                    IQuickInfoSession current_Session = this._quickInfoBroker.GetSessions(this._textView)[0]; //XYZZY OLD
+
+                    var span = current_Session.ApplicableToSpan;
+                    if ((span != null) && span.GetSpan(this._textView.TextSnapshot).IntersectsWith(new Span(pos, 0)))
                     {
-                        //int pos = point.Value.Position;
-                        int pos = this.Get_Keyword_Span_At_Point(point.Value).Start;
-
-                        ITrackingPoint triggerPoint = point.Value.Snapshot.CreateTrackingPoint(pos, PointTrackingMode.Positive);
-
-                        if (this._quickInfoBroker.IsQuickInfoActive(this._textView))
-                        {
-                            //IAsyncQuickInfoSession current_Session = this._quickInfoBroker.GetSession(this._textView); //XYZZY NEW
-                            IQuickInfoSession current_Session = this._quickInfoBroker.GetSessions(this._textView)[0]; //XYZZY OLD
-
-                            var span = current_Session.ApplicableToSpan;
-                            if ((span != null) && span.GetSpan(this._textView.TextSnapshot).IntersectsWith(new Span(pos, 0)))
-                            {
-                                AsmDudeToolsStatic.Output_INFO(string.Format("{0}::OnTextViewMouseHover: A: quickInfoBroker is already active: intersects!", this.ToString()));
-                            }
-                            else
-                            {
-                                AsmDudeToolsStatic.Output_INFO("QuickInfoController:OnTextViewMouseHover: B: quickInfoBroker is already active, but we need a new session at " + pos);
-                                //_ = current_Session.DismissAsync(); //XYZZY NEW
-                                //_ = this._quickInfoBroker.TriggerQuickInfoAsync(this._textView, triggerPoint, QuickInfoSessionOptions.None); //BUG here QuickInfoSessionOptions.None behaves as TrackMouse  //XYZZY NEW
-                                current_Session.Dismiss(); //XYZZY OLD
-                                this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);  //XYZZY OLD
-                            }
-                        }
-                        else
-                        {
-                            AsmDudeToolsStatic.Output_INFO(string.Format("{0}::OnTextViewMouseHover: C: quickInfoBroker was not active, create a new session for triggerPoint {1}", this.ToString(), pos));
-                            //_ = this._quickInfoBroker.TriggerQuickInfoAsync(this._textView, triggerPoint, QuickInfoSessionOptions.None); //XYZZY NEW
-                            this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);  //XYZZY OLD
-                        }
+                        AsmDudeToolsStatic.Output_INFO(string.Format("{0}::OnTextViewMouseHover: A: quickInfoBroker is already active: intersects!", this.ToString()));
                     }
                     else
                     {
-                        AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: point has not value", this.ToString()));
-                    }
-                }
-                else if (contentType.Equals(AsmDudePackage.DisassemblyContentType, StringComparison.Ordinal))
-                {
-                    AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: Quickinfo for disassembly view. file={1}", this.ToString(), AsmDudeToolsStatic.GetFilename(this._textView.TextBuffer)));
-                    SnapshotPoint? triggerPoint = this.GetMousePosition(new SnapshotPoint(this._textView.TextSnapshot, e.Position));
-                    if (!triggerPoint.HasValue)
-                    {
-                        AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:OnTextViewMouseHover: trigger point is null", this.ToString()));
+                        AsmDudeToolsStatic.Output_INFO("QuickInfoController:OnTextViewMouseHover: B: quickInfoBroker is already active, but we need a new session at " + pos);
+                        //_ = current_Session.DismissAsync(); //XYZZY NEW
+                        //_ = this._quickInfoBroker.TriggerQuickInfoAsync(this._textView, triggerPoint, QuickInfoSessionOptions.None); //BUG here QuickInfoSessionOptions.None behaves as TrackMouse  //XYZZY NEW
+                        current_Session.Dismiss(); //XYZZY OLD
+                        this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);  //XYZZY OLD
                     }
                 }
                 else
                 {
-                    AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:OnTextViewMouseHover: does not have have AsmDudeContentType: but has type {1}", this.ToString(), contentType));
+                    AsmDudeToolsStatic.Output_INFO(string.Format("{0}::OnTextViewMouseHover: C: quickInfoBroker was not active, create a new session for triggerPoint {1}", this.ToString(), pos));
+                    //_ = this._quickInfoBroker.TriggerQuickInfoAsync(this._textView, triggerPoint, QuickInfoSessionOptions.None); //XYZZY NEW
+                    this._quickInfoBroker.TriggerQuickInfo(this._textView, triggerPoint, false);  //XYZZY OLD
                 }
             }
-            catch (Exception e2)
+            else
             {
-                AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:OnTextViewMouseHover: exception={1}", this.ToString(), e2.Message));
+                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:OnTextViewMouseHover: point has not value", this.ToString()));
             }
         }
 

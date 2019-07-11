@@ -35,51 +35,9 @@ namespace AsmDude.QuickInfo
 {
     public partial class InstructionTooltipWindow : IInteractiveQuickInfoContent
     {
-        private IList<TextBox> _itemsOnPage;
-        private int _lineNumber;
-        private AsmSimulator _asmSimulator;
-
-        internal AsmQuickInfoController Owner { get; set; }
-        internal IQuickInfoSession Session { get; set; }
-
-        public InstructionTooltipWindow(Brush foreground)
+        public InstructionTooltipWindow()
         {
            this.InitializeComponent();
-        }
-        
-        private void StackPanel_Click(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:StackPanel_Click");
-        }
-
-        private void AsmSimExpander_Click(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:AsmSimExpander_Click");
-        }
-
-        private void PerformanceExpander_Click(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:PerformanceExpander_Click");
-        }
-
-        private void PerformanceBorder_Click(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:PerformanceBorder_Click");
-        }
-
-        private void ScrollViewer_Click(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:ScrollViewer_Click");
-        }
-
-        private void TextBlock_Click(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:TextBlock_Click");
-        }
-
-        private void PerformanceExpander_MouseLeftDown(object sender, RoutedEventArgs e)
-        {
-            AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:PerformanceExpander_MouseLeftDown");
         }
 
         public bool KeepQuickInfoOpen
@@ -99,42 +57,6 @@ namespace AsmDude.QuickInfo
                 AsmDudeToolsStatic.Output_INFO("InstructionTooltipWindow:IsMouseOverAggregated");
                 return this.IsMouseOver || this.IsMouseDirectlyOver;
             }
-        }
-
-
-        private async System.Threading.Tasks.Task Update_Async(Button button)
-        {
-            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:Update_Async", this.ToString()));
-
-            if (button == null)
-            {
-                return;
-            }
-
-            if (this._asmSimulator == null)
-            {
-                return;
-            }
-
-            try
-            {
-                if (!ThreadHelper.CheckAccess())
-                {
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                }
-
-                ButtonInfo info = (ButtonInfo)button.Tag;
-                info.text.Text = (info.reg == Rn.NOREG)
-                    ? info.flag.ToString() + " = " + this._asmSimulator.Get_Flag_Value_and_Block(info.flag, this._lineNumber, info.before)
-                    : info.reg.ToString() + " = " + this._asmSimulator.Get_Register_Value_and_Block(info.reg, this._lineNumber, info.before, AsmSourceTools.ParseNumeration(Settings.Default.AsmSim_Show_Register_In_Instruction_Tooltip_Numeration));
-
-                info.text.Visibility = Visibility.Visible;
-                button.Visibility = Visibility.Collapsed;
-            }
-            catch (Exception e)
-            {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Async; e={1}", this.ToString(), e.ToString()));
-            };
         }
     }
 }
