@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 using AsmDude.Tools;
-using AsmTools;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -123,26 +122,6 @@ namespace AsmDude.QuickInfo
                 snapshot => this._subjectBuffers.Contains(snapshot.TextBuffer),
                 PositionAffinity.Predecessor
             );
-        }
-
-        private Span Get_Keyword_Span_At_Point(SnapshotPoint triggerPoint)
-        {
-            ITextSnapshotLine line = triggerPoint.GetContainingLine();
-
-            //1] find the start of the current keyword
-            SnapshotPoint start = triggerPoint;
-            while ((start > line.Start) && !AsmSourceTools.IsSeparatorChar((start - 1).GetChar()))
-            {
-                start -= 1;
-            }
-            //2] find the end of the current keyword
-            SnapshotPoint end = triggerPoint;
-            while (((end + 1) < line.End) && !AsmSourceTools.IsSeparatorChar((end + 1).GetChar()))
-            {
-                end += 1;
-            }
-            //3] get the word under the mouse
-            return new SnapshotSpan(start, end + 1);
         }
     }
 }

@@ -93,29 +93,34 @@ INFO: AsmTaggerProvider:CreateTagger: contentType=DebugOutput
 
 namespace AsmDude.SyntaxHighlighting
 {
-    [Export(typeof(ITaggerProvider))]
-    [ContentType(AsmDudePackage.DisassemblyContentType)]
-    [TagType(typeof(ClassificationTag))]
-    [Name("AsmDisassemblyTaggerProvider")]
-    [Order(After = Priority.High)]
-    internal sealed class AsmDisassemblyTaggerProvider : ITaggerProvider
+    [ContentType(AsmDudePackage.AsmDudeContentType)]
+    [Name("AsmDude-AsmTaggerProvider")]
+    internal sealed class AsmContentTypeProvider
     {
-        [Import]
-        private readonly IClassificationTypeRegistryService _classificationTypeRegistry = null;
+        [Export]
+        [Name("asm!")]
+        [BaseDefinition("code")]
+        internal static ContentTypeDefinition AsmContentType = null;
 
-        [Import]
-        private readonly IBufferTagAggregatorFactoryService _aggregatorFactory = null;
+        [Export]
+        [FileExtension(".asm")]
+        [ContentType(AsmDudePackage.AsmDudeContentType)]
+        internal static FileExtensionToContentTypeDefinition AsmFileType = null;
 
-        public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
-        {
-            //AsmDudeToolsStatic.Output_INFO("AsmDisassemblyTaggerProvider: Creating a TaggerProvider for buffer " + buffer.CurrentSnapshot.GetText());
+        [Export]
+        [FileExtension(".cod")]
+        [ContentType(AsmDudePackage.AsmDudeContentType)]
+        internal static FileExtensionToContentTypeDefinition AsmFileType_cod = null;
 
-            ITagger<T> sc()
-            {
-                ITagAggregator<AsmTokenTag> aggregator = AsmDudeToolsStatic.GetOrCreate_Aggregator(buffer, this._aggregatorFactory);
-                return new AsmClassifier(buffer, aggregator, this._classificationTypeRegistry) as ITagger<T>;
-            }
-            return buffer.Properties.GetOrCreateSingletonProperty(sc);
-        }
+        [Export]
+        [FileExtension(".inc")]
+        [ContentType(AsmDudePackage.AsmDudeContentType)]
+        internal static FileExtensionToContentTypeDefinition AsmFileType_inc = null;
+
+        [Export]
+        [FileExtension(".s")]
+        [ContentType(AsmDudePackage.AsmDudeContentType)]
+        internal static FileExtensionToContentTypeDefinition AsmFileType_s = null;
+
     }
 }

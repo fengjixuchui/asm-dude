@@ -21,15 +21,7 @@
 // SOFTWARE.
 
 using AsmDude.Tools;
-using AsmTools;
 using Microsoft.VisualStudio.Language.Intellisense;
-using Microsoft.VisualStudio.Shell;
-using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
 
 namespace AsmDude.QuickInfo
 {

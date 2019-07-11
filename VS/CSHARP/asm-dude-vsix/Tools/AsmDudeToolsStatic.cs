@@ -29,7 +29,6 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,28 +47,7 @@ namespace AsmDude.Tools
 
         #region Singleton Factories
 
-        public static ITagAggregator<AsmTokenTag> GetOrCreate_Aggregator(
-            ITextBuffer buffer,
-            IBufferTagAggregatorFactoryService aggregatorFactory)
-        {
-            ITagAggregator<AsmTokenTag> sc()
-            {   // this is the only place where ITagAggregator are created
-                //AsmDudeToolsStatic.Output_INFO("Creating a ITagAggregator");
-                return aggregatorFactory.CreateTagAggregator<AsmTokenTag>(buffer);
-            }
-            return buffer.Properties.GetOrCreateSingletonProperty(sc);
-        }
-
-        public static void Print_Speed_Warning(DateTime startTime, string component)
-        {
-            double elapsedSec = (double)(DateTime.Now.Ticks - startTime.Ticks) / 10000000;
-            if (elapsedSec > AsmDudePackage.slowWarningThresholdSec)
-            {
-                Output_WARNING(string.Format("SLOW: took {0} {1:F3} seconds to finish", component, elapsedSec));
-            }
-        }
-
-        #endregion Singleton Factories
+         #endregion Singleton Factories
 
         public static AssemblerEnum Used_Assembler
         {
@@ -328,22 +306,6 @@ namespace AsmDude.Tools
             return filename;
         }
 
-        public static (AsmTokenTag tag, SnapshotSpan? keywordSpan) GetAsmTokenTag(ITagAggregator<AsmTokenTag> aggregator, SnapshotPoint triggerPoint)
-        {
-            foreach (IMappingTagSpan<AsmTokenTag> asmTokenTag in aggregator.GetTags(new SnapshotSpan(triggerPoint, triggerPoint)))
-            {
-                foreach (SnapshotSpan span in asmTokenTag.Span.GetSpans(triggerPoint.Snapshot.TextBuffer))
-                {
-                    return (asmTokenTag.Tag, span);
-                }
-            }
-            return (null, null);
-        }
-
-        public static IEnumerable<IMappingTagSpan<AsmTokenTag>> GetAsmTokenTags(ITagAggregator<AsmTokenTag> aggregator, int lineNumber)
-        {
-            return aggregator.GetTags(aggregator.BufferGraph.TopBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).Extent);
-        }
 
         public static async System.Threading.Tasks.Task Open_Disassembler_Async()
         {
@@ -679,7 +641,6 @@ namespace AsmDude.Tools
                 sb.Append("|  _  |___ _____  |    \\ _ _ _| |___ \n");
                 sb.Append("|     |_ -|     | |  |  | | | . | -_|\n");
                 sb.Append("|__|__|___|_|_|_| |____/|___|___|___|\n");
-                sb.Append("INFO: Loaded AsmDude version " + typeof(AsmDudePackage).Assembly.GetName().Version + " (" + ApplicationInformation.CompileDate.ToString() + ")\n");
                 sb.Append("INFO: Open source assembly extension. Making programming in assembler almost bearable.\n");
                 sb.Append("INFO: More info at https://github.com/HJLebbink/asm-dude \n");
                 sb.Append("----------------------------------\n");
@@ -769,33 +730,6 @@ namespace AsmDude.Tools
                 }
             }
             return true;
-        }
-
-        public static void Disable_Message(string msg, string filename, ErrorListProvider errorListProvider)
-        {
-            Output_WARNING(msg);
-
-            for (int i = 0; i < errorListProvider.Tasks.Count; ++i)
-            {
-                Microsoft.VisualStudio.Shell.Task t = errorListProvider.Tasks[i];
-                if (t.Text.Equals(msg))
-                {
-                    return;
-                }
-            }
-
-            ErrorTask errorTask = new ErrorTask()
-            {
-                SubcategoryIndex = (int)AsmMessageEnum.OTHER,
-                Text = msg,
-                ErrorCategory = TaskErrorCategory.Message,
-                Document = filename
-            };
-            errorTask.Navigate += Error_Task_Navigate_Handler;
-
-            errorListProvider.Tasks.Add(errorTask);
-            errorListProvider.Refresh();
-            //errorListProvider.Show(); // do not use BringToFront since that will select the error window.
         }
 
         public static MicroArch Get_MicroArch_Switched_On()

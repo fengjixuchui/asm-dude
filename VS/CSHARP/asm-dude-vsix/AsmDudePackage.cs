@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using AsmDude.OptionsPage;
 using AsmDude.Tools;
 using Microsoft.VisualStudio.Shell;
 using System;
@@ -36,9 +35,6 @@ namespace AsmDude
     [InstalledProductRegistration("#110", "#112", Vsix.Version, IconResourceID = 400)] // Info on this package for Help/About
     [Guid(PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    [ComVisible(false)]
-    [ProvideOptionPage(typeof(AsmDudeOptionsPage), "AsmDude", "General", 0, 0, true)]
-
     public sealed class AsmDudePackage : AsyncPackage
     {
 
