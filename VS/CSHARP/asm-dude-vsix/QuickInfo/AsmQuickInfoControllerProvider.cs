@@ -30,9 +30,9 @@ using System.ComponentModel.Composition;
 
 namespace AsmDude.QuickInfo
 {
-    [Export(typeof(IIntellisenseControllerProvider))]
-    [ContentType(AsmDudePackage.AsmDudeContentType)]
-    [Name("AsmQuickInfoControllerProvider")]
+    //[Export(typeof(IIntellisenseControllerProvider))]
+    //[ContentType(AsmDudePackage.AsmDudeContentType)]
+    //[Name("AsmQuickInfoControllerProvider")]
     internal sealed class AsmQuickInfoControllerProvider : IIntellisenseControllerProvider
     {
         [Import]

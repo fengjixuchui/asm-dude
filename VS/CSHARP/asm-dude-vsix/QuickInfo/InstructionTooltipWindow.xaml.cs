@@ -29,33 +29,8 @@ namespace AsmDude.QuickInfo
     {
         public InstructionTooltipWindow()
         {
-           this.InitializeComponent();
+            this.InitializeComponent();
             AsmDudeToolsStatic.Output_INFO(string.Format("{0}:constructor", this.ToString()));
-
-            this.MainWindow.MouseLeftButtonDown += (o, i) =>
-            {
-                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:MouseLeftButtonDown", this.ToString()));
-                //i.Handled = true; // dont let the mouse event from inside this window bubble up to VS
-            };
-
-            this.MainWindow.PreviewMouseLeftButtonDown += (o, i) =>
-            {
-                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:PreviewMouseLeftButtonDown", this.ToString()));
-                //i.Handled = true; // if true then no event is able to bubble to the gui
-            };
-
-            this.MyExpander.MouseLeftButtonUp += (o, i) =>
-            {
-                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:MouseLeftButtonUp", this.ToString()));
-                //i.Handled = true;
-            };
-
-            this.MyExpander.GotMouseCapture += (o, i) =>
-            {
-                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:GotMouseCapture", this.ToString()));
-                //i.Handled = true;
-            };
-
         }
 
         public bool KeepQuickInfoOpen

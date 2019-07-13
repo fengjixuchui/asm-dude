@@ -45,7 +45,7 @@ namespace AsmDude.QuickInfo
             this._textView = textView ?? throw new ArgumentNullException(nameof(textView));
             this._subjectBuffers = subjectBuffers ?? throw new ArgumentNullException(nameof(subjectBuffers));
             this._quickInfoBroker = quickInfoBroker ?? throw new ArgumentNullException(nameof(quickInfoBroker));
-            this._textView.MouseHover += this.OnTextViewMouseHover;
+           // this._textView.MouseHover += this.OnTextViewMouseHover;
         }
 
         public void ConnectSubjectBuffer(ITextBuffer subjectBuffer)
