@@ -283,7 +283,7 @@ namespace AsmDude.QuickInfo
                                 : keyword;
 
 
-                            if (true)
+                            if (false) // experiment to get text selectable
                             {
                                 TextBoxWindow myWindow = new TextBoxWindow();
                                 myWindow.MouseRightButtonUp += this.MyWindow_MouseRightButtonUp;
@@ -428,15 +428,9 @@ namespace AsmDude.QuickInfo
                 {
                     int lineNumber = this._labelGraph.Get_Linenumber(id);
                     string filename = Path.GetFileName(this._labelGraph.Get_Filename(id));
-                    string lineContent;
-                    if (this._labelGraph.Is_From_Main_File(id))
-                    {
-                        lineContent = " :" + this._textBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText();
-                    }
-                    else
-                    {
-                        lineContent = string.Empty;
-                    }
+                    string lineContent = (this._labelGraph.Is_From_Main_File(id))
+                        ? " :" + this._textBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText()
+                        : string.Empty;
                     sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format("Defined at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
                 }
                 string result = sb.ToString();
@@ -513,9 +507,9 @@ namespace AsmDude.QuickInfo
 
         public static TextEditorWrapper CreateFor(TextBlock tb)
         {
-            var textContainer = TextContainerProp.GetValue(tb);
+            object textContainer = TextContainerProp.GetValue(tb);
 
-            var editor = new TextEditorWrapper(textContainer, tb, false);
+            TextEditorWrapper editor = new TextEditorWrapper(textContainer, tb, false);
             IsReadOnlyProp.SetValue(editor._editor, true);
             TextViewProp.SetValue(editor._editor, TextContainerTextViewProp.GetValue(textContainer));
 
