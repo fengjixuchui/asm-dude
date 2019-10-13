@@ -92,7 +92,7 @@ namespace AsmDude
                 ITextSnapshotLine containingLine = curSpan.Start.GetContainingLine();
 
                 string line_capitals = containingLine.GetText().ToUpper();
-                List<(int BeginPos, int Length, bool IsLabel)> pos = new List<(int BeginPos, int Length, bool IsLabel)>(AsmSourceTools.SplitIntoKeywordPos(line_capitals));
+                List<(int beginPos, int length, bool isLabel)> pos = new List<(int beginPos, int length, bool isLabel)>(AsmSourceTools.SplitIntoKeywordPos(line_capitals));
 
                 int offset = containingLine.Start.Position;
                 int nKeywords = pos.Count;
@@ -111,7 +111,7 @@ namespace AsmDude
                     string asmToken = AsmSourceTools.Keyword(pos[k], line_capitals);
 
                     // keyword k is a label definition
-                    if (pos[k].IsLabel)
+                    if (pos[k].isLabel)
                     {
                         yield return new TagSpan<AsmTokenTag>(NasmIntelTokenTagger.New_Span(pos[k], offset, curSpan), this._labelDef);
                         continue;
@@ -244,7 +244,7 @@ namespace AsmDude
             return false;
         }
 
-        private static bool IsSourceCode(string line, List<(int BeginPos, int Length, bool IsLabel)> pos)
+        private static bool IsSourceCode(string line, List<(int beginPos, int length, bool isLabel)> pos)
         {
             if (pos.Count < 2)
             {
@@ -286,11 +286,11 @@ namespace AsmDude
                     return true;
                 }
             }
-            if (pos[0].IsLabel)
+            if (pos[0].isLabel)
             {
                 return false;
             }
-            foreach ((int BeginPos, int Length, bool IsLabel) v in pos)
+            foreach ((int beginPos, int length, bool isLabel) v in pos)
             {
                 string asmToken = AsmSourceTools.Keyword(v, line);
                 if (AsmSourceTools.IsMnemonic(asmToken, true))
@@ -305,14 +305,14 @@ namespace AsmDude
 
         #region Public Static Methods
 
-        public static string Keyword((int, int, bool) pos, string line)
+        public static string Keyword((int beginPos, int length, bool isLabel) pos, string line)
         {
-            return line.Substring(pos.Item1, pos.Item2 - pos.Item1);
+            return line.Substring(pos.beginPos, pos.length - pos.beginPos);
         }
 
-        public static SnapshotSpan New_Span((int, int, bool) pos, int offset, SnapshotSpan lineSnapShot)
+        public static SnapshotSpan New_Span((int beginPos, int length, bool isLabel) pos, int offset, SnapshotSpan lineSnapShot)
         {
-            return new SnapshotSpan(lineSnapShot.Snapshot, new Span(pos.Item1 + offset, pos.Item2 - pos.Item1));
+            return new SnapshotSpan(lineSnapShot.Snapshot, new Span(pos.beginPos + offset, pos.length - pos.beginPos));
         }
 
         #endregion Public Static Methods

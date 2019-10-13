@@ -25,6 +25,7 @@ namespace AsmDude
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.Contracts;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -118,7 +119,7 @@ namespace AsmDude
                     foreach (AsmSignatureElement e in intel)
                     {
                         intelCount++;
-                        string instruction = e.Mnemonic.ToString() + " " + e.Operands_Str;
+                        string instruction = e.mnemonic.ToString() + " " + e.Operands_Str;
                         if (signaturesIntel.ContainsKey(instruction))
                         {
                             AsmDudeToolsStatic.Output_WARNING("Intel " + instruction + ": is already present with arch " + signaturesIntel[instruction] + "; new arch " + e.Arch_Str);
@@ -132,7 +133,7 @@ namespace AsmDude
                     foreach (AsmSignatureElement e in nasm)
                     {
                         nasmCount++;
-                        string instruction = e.Mnemonic.ToString() + " " + e.Operands_Str;
+                        string instruction = e.mnemonic.ToString() + " " + e.Operands_Str;
                         if (signaturesNasm.ContainsKey(instruction))
                         {
                             // AsmDudeToolsStatic.Output_WARNING("Nasm " + instruction + ": is already present with arch " + signaturesNasm[instruction] + "; new arch " + e.archStr);
@@ -145,7 +146,7 @@ namespace AsmDude
 
                     foreach (AsmSignatureElement e in intel)
                     {
-                        string instruction = e.Mnemonic.ToString() + " " + e.Operands_Str;
+                        string instruction = e.mnemonic.ToString() + " " + e.Operands_Str;
 
                         //AsmDudeToolsStatic.Output_INFO("Intel " + instruction + ": arch" + e.archStr);
                         if ((e.Arch_Str == null) || (e.Arch_Str.Length == 0))
@@ -334,9 +335,10 @@ namespace AsmDude
 
         public AsmTokenType Get_Token_Type_Att(string keyword)
         {
-            Debug.Assert(keyword == keyword.ToUpper());
+            Contract.Requires(keyword != null);
+            Contract.Requires(keyword == keyword.ToUpper());
             int length = keyword.Length;
-            Debug.Assert(length > 0);
+            Contract.Requires(length > 0);
 
             char firstChar = keyword[0];
 
@@ -376,7 +378,8 @@ namespace AsmDude
 
         public AsmTokenType Get_Token_Type_Intel(string keyword)
         {
-            Debug.Assert(keyword == keyword.ToUpper());
+            Contract.Requires(keyword != null);
+            Contract.Requires(keyword == keyword.ToUpper());
 
             Mnemonic mnemonic = AsmSourceTools.ParseMnemonic(keyword, true);
             if (mnemonic != Mnemonic.NONE)
@@ -397,7 +400,8 @@ namespace AsmDude
 
         public AssemblerEnum Get_Assembler(string keyword)
         {
-            Debug.Assert(keyword == keyword.ToUpper());
+            Contract.Requires(keyword != null);
+            Contract.Requires(keyword == keyword.ToUpper());
             return this._assembler.TryGetValue(keyword, out AssemblerEnum value) ? value : AssemblerEnum.UNKNOWN;
         }
 
@@ -414,7 +418,8 @@ namespace AsmDude
         /// </summary>
         public string Get_Description(string keyword)
         {
-            Debug.Assert(keyword == keyword.ToUpper());
+            Contract.Requires(keyword != null);
+            Contract.Requires(keyword == keyword.ToUpper());
             return this._description.TryGetValue(keyword, out string description) ? description : string.Empty;
         }
 
@@ -423,7 +428,8 @@ namespace AsmDude
         /// </summary>
         public Arch Get_Architecture(string keyword)
         {
-            Debug.Assert(keyword == keyword.ToUpper());
+            Contract.Requires(keyword != null);
+            Contract.Requires(keyword == keyword.ToUpper());
             return this._arch.TryGetValue(keyword, out Arch value) ? value : Arch.ARCH_NONE;
         }
 
@@ -456,8 +462,8 @@ namespace AsmDude
                 {
                     string name = nameAttribute.Value.ToUpper();
                     this._type[name] = AsmTokenType.Misc;
-                    this._arch[name] = this.Retrieve_Arch(node);
-                    this._description[name] = this.Retrieve_Description(node);
+                    this._arch[name] = Retrieve_Arch(node);
+                    this._description[name] = Retrieve_Description(node);
                 }
             }
 
@@ -472,9 +478,9 @@ namespace AsmDude
                 {
                     string name = nameAttribute.Value.ToUpper();
                     this._type[name] = AsmTokenType.Directive;
-                    this._arch[name] = this.Retrieve_Arch(node);
-                    this._assembler[name] = this.Retrieve_Assembler(node);
-                    this._description[name] = this.Retrieve_Description(node);
+                    this._arch[name] = Retrieve_Arch(node);
+                    this._assembler[name] = Retrieve_Assembler(node);
+                    this._description[name] = Retrieve_Description(node);
                 }
             }
             foreach (XmlNode node in xmlDoc.SelectNodes("//register"))
@@ -488,8 +494,8 @@ namespace AsmDude
                 {
                     string name = nameAttribute.Value.ToUpper();
                     //this._type[name] = AsmTokenType.Register;
-                    this._arch[name] = this.Retrieve_Arch(node);
-                    this._description[name] = this.Retrieve_Description(node);
+                    this._arch[name] = Retrieve_Arch(node);
+                    this._description[name] = Retrieve_Description(node);
                 }
             }
             foreach (XmlNode node in xmlDoc.SelectNodes("//userdefined1"))
@@ -503,7 +509,7 @@ namespace AsmDude
                 {
                     string name = nameAttribute.Value.ToUpper();
                     this._type[name] = AsmTokenType.UserDefined1;
-                    this._description[name] = this.Retrieve_Description(node);
+                    this._description[name] = Retrieve_Description(node);
                 }
             }
             foreach (XmlNode node in xmlDoc.SelectNodes("//userdefined2"))
@@ -517,7 +523,7 @@ namespace AsmDude
                 {
                     string name = nameAttribute.Value.ToUpper();
                     this._type[name] = AsmTokenType.UserDefined2;
-                    this._description[name] = this.Retrieve_Description(node);
+                    this._description[name] = Retrieve_Description(node);
                 }
             }
             foreach (XmlNode node in xmlDoc.SelectNodes("//userdefined3"))
@@ -531,12 +537,12 @@ namespace AsmDude
                 {
                     string name = nameAttribute.Value.ToUpper();
                     this._type[name] = AsmTokenType.UserDefined3;
-                    this._description[name] = this.Retrieve_Description(node);
+                    this._description[name] = Retrieve_Description(node);
                 }
             }
         }
 
-        private Arch Retrieve_Arch(XmlNode node)
+        private static Arch Retrieve_Arch(XmlNode node)
         {
             try
             {
@@ -549,7 +555,7 @@ namespace AsmDude
             }
         }
 
-        private AssemblerEnum Retrieve_Assembler(XmlNode node)
+        private static AssemblerEnum Retrieve_Assembler(XmlNode node)
         {
             try
             {
@@ -562,7 +568,7 @@ namespace AsmDude
             }
         }
 
-        private string Retrieve_Description(XmlNode node)
+        private static string Retrieve_Description(XmlNode node)
         {
             try
             {

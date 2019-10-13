@@ -24,6 +24,7 @@ namespace AsmDude.SignatureHelp
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.Text;
     using AsmDude.Tools;
     using AsmTools;
@@ -43,6 +44,8 @@ namespace AsmDude.SignatureHelp
 
         public AsmSignatureElement(Mnemonic mnem, string operandStr2, string archStr, string operandDoc, string doc)
         {
+            Contract.Requires(operandDoc != null);
+
             this._mnemonic = mnem;
             this._operands = new List<IList<AsmSignatureEnum>>();
             this._arch = new List<Arch>();
@@ -70,6 +73,8 @@ namespace AsmDude.SignatureHelp
 
         public static string Make_Doc(IList<AsmSignatureEnum> operandType)
         {
+            Contract.Requires(operandType != null);
+
             StringBuilder sb = new StringBuilder();
             foreach (AsmSignatureEnum op in operandType)
             {
@@ -102,6 +107,7 @@ namespace AsmDude.SignatureHelp
         /// <summary>Return true if this Signature Element is allowed in the provided architectures</summary>
         public bool Is_Allowed(ISet<Arch> selectedArchitectures)
         {
+            Contract.Requires(selectedArchitectures != null);
             foreach (Arch a in this._arch)
             {
                 if (selectedArchitectures.Contains(a))
@@ -122,7 +128,7 @@ namespace AsmDude.SignatureHelp
             set
             {
                 this._arch.Clear();
-                if (value == string.Empty)
+                if (string.IsNullOrEmpty(value))
                 {
                     //this._arch.Add(Arch.ARCH_486);
                 }
@@ -146,7 +152,7 @@ namespace AsmDude.SignatureHelp
 
         public IList<Arch> Arch { get { return this._arch; } }
 
-        public Mnemonic Mnemonic { get { return this._mnemonic; } }
+        public Mnemonic mnemonic { get { return this._mnemonic; } }
 
         public string Operands_Str
         {
@@ -169,34 +175,37 @@ namespace AsmDude.SignatureHelp
             {
                 this._operands.Clear();
 
-                this._operandStr = value.Split(',');
-                if (this._reversed_Signature)
+                if (!string.IsNullOrEmpty(value))
                 {
-                    Array.Reverse(this._operandStr);
-                }
-
-                for (int i = 0; i < this._operandStr.Length; ++i)
-                {
-                    this._operandStr[i] = this._operandStr[i].Trim();
-                    if (this._operandStr[i].Length > 0)
+                    this._operandStr = value.Split(',');
+                    if (this._reversed_Signature)
                     {
-                        //AsmDudeToolsStatic.Output_INFO("SignatureStore:load: operandStr " + operandStr);
-                        IList<AsmSignatureEnum> operandList = new List<AsmSignatureEnum>();
-                        AsmSignatureEnum[] operandTypes = AsmSignatureTools.Parse_Operand_Type_Enum(this._operandStr[i]);
-                        if ((operandTypes.Length == 1) && ((operandTypes[0] == AsmSignatureEnum.NONE) || (operandTypes[0] == AsmSignatureEnum.UNKNOWN)))
+                        Array.Reverse(this._operandStr);
+                    }
+
+                    for (int i = 0; i < this._operandStr.Length; ++i)
+                    {
+                        this._operandStr[i] = this._operandStr[i].Trim();
+                        if (this._operandStr[i].Length > 0)
                         {
-                            // do nothing
-                        }
-                        else
-                        {
-                            foreach (AsmSignatureEnum op in operandTypes)
+                            //AsmDudeToolsStatic.Output_INFO("SignatureStore:load: operandStr " + operandStr);
+                            IList<AsmSignatureEnum> operandList = new List<AsmSignatureEnum>();
+                            AsmSignatureEnum[] operandTypes = AsmSignatureTools.Parse_Operand_Type_Enum(this._operandStr[i]);
+                            if ((operandTypes.Length == 1) && ((operandTypes[0] == AsmSignatureEnum.NONE) || (operandTypes[0] == AsmSignatureEnum.UNKNOWN)))
                             {
-                                operandList.Add(op);
+                                // do nothing
                             }
-                        }
-                        if (operandList.Count > 0)
-                        {
-                            this._operands.Add(operandList);
+                            else
+                            {
+                                foreach (AsmSignatureEnum op in operandTypes)
+                                {
+                                    operandList.Add(op);
+                                }
+                            }
+                            if (operandList.Count > 0)
+                            {
+                                this._operands.Add(operandList);
+                            }
                         }
                     }
                 }
@@ -237,7 +246,7 @@ namespace AsmDude.SignatureHelp
 
         public override string ToString()
         {
-            return this.Mnemonic.ToString() + " " + this.Operands_Str;
+            return this.mnemonic.ToString() + " " + this.Operands_Str;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace AsmDude
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Windows.Media;
@@ -37,6 +38,8 @@ namespace AsmDude
     {
         public int Compare(Completion x, Completion y)
         {
+            Contract.Requires(x != null);
+            Contract.Requires(y != null);
             return x.InsertionText.CompareTo(y.InsertionText);
         }
     }
@@ -63,6 +66,9 @@ namespace AsmDude
 
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
         {
+            Contract.Requires(session != null);
+            Contract.Requires(completionSets != null);
+
             try
             {
                 //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:AugmentCompletionSession", this.ToString()));
@@ -119,8 +125,8 @@ namespace AsmDude
                 bool useCapitals = AsmDudeToolsStatic.Is_All_Upper(partialKeyword);
 
                 string lineStr = line.GetText();
-                (string Label, Mnemonic Mnemonic, string[] Args, string Remark) t = AsmSourceTools.ParseLine(lineStr);
-                Mnemonic mnemonic = t.Mnemonic;
+                (string label, Mnemonic mnemonic, string[] args, string remark) t = AsmSourceTools.ParseLine(lineStr);
+                Mnemonic mnemonic = t.mnemonic;
                 string previousKeyword = AsmDudeToolsStatic.Get_Previous_Keyword(line.Start, start).ToUpper();
 
                 //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:AugmentCompletionSession. lineStr=\"{1}\"; previousKeyword=\"{2}\"", this.ToString(), lineStr, previousKeyword));
@@ -191,7 +197,7 @@ namespace AsmDude
                     }
                     else
                     {
-                        IList<Operand> operands = AsmSourceTools.MakeOperands(t.Args);
+                        IList<Operand> operands = AsmSourceTools.MakeOperands(t.args);
                         ISet<AsmSignatureEnum> allowed = new HashSet<AsmSignatureEnum>();
                         int commaCount = AsmSignature.Count_Commas(lineStr);
                         IEnumerable<AsmSignatureElement> allSignatures = this._asmDudeTools.Mnemonic_Store.GetSignatures(mnemonic);

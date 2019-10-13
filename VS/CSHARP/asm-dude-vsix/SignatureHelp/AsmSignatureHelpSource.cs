@@ -115,9 +115,9 @@ namespace AsmDude.SignatureHelp
                 string lineStr = line.GetText();
                 //AsmDudeToolsStatic.Output_INFO("AsmSignatureHelpSource: AugmentSignatureHelpSession: lineStr=" + lineStr+ "; positionInLine=" + positionInLine);
 
-                (string Label, Mnemonic Mnemonic, string[] Args, string Remark) t = AsmSourceTools.ParseLine(lineStr);
-                IList<Operand> operands = AsmSourceTools.MakeOperands(t.Args);
-                Mnemonic mnemonic = t.Mnemonic;
+                (string label, Mnemonic mnemonic, string[] args, string remark) t = AsmSourceTools.ParseLine(lineStr);
+                IList<Operand> operands = AsmSourceTools.MakeOperands(t.args);
+                Mnemonic mnemonic = t.mnemonic;
 
                 ISet<Arch> selectedArchitectures = AsmDudeToolsStatic.Get_Arch_Swithed_On();
                 //AsmDudeToolsStatic.Output_INFO("AsmSignatureHelpSource: AugmentSignatureHelpSession: selected architectures=" + ArchTools.ToString(selectedArchitectures));
@@ -163,7 +163,7 @@ namespace AsmDude.SignatureHelp
             Span[] locus = new Span[nOperands];
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(signatureElement.Mnemonic.ToString());
+            sb.Append(signatureElement.mnemonic.ToString());
             sb.Append(" ");
             //AsmDudeToolsStatic.Output_INFO("AsmSignatureHelpSource: createSignature: sb=" + sb.ToString());
 

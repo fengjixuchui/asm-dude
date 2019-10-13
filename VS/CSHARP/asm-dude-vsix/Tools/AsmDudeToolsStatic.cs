@@ -25,6 +25,7 @@ namespace AsmDude.Tools
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.Contracts;
     using System.Globalization;
     using System.Text;
     using System.Threading.Tasks;
@@ -51,6 +52,9 @@ namespace AsmDude.Tools
             ITextBuffer buffer,
             IBufferTagAggregatorFactoryService aggregatorFactory)
         {
+            Contract.Requires(buffer != null);
+            Contract.Requires(aggregatorFactory != null);
+
             ITagAggregator<AsmTokenTag> sc()
             { // this is the only place where ITagAggregator are created
                 //AsmDudeToolsStatic.Output_INFO("Creating a ITagAggregator");
@@ -65,6 +69,9 @@ namespace AsmDude.Tools
             ITextDocumentFactoryService docFactory,
             IContentTypeRegistryService contentService)
         {
+            Contract.Requires(buffer != null);
+
+
             LabelGraph sc1()
             {
                 IContentType contentType = contentService.GetContentType(AsmDudePackage.AsmDudeContentType);
@@ -84,64 +91,11 @@ namespace AsmDude.Tools
 
         #endregion Singleton Factories
 
-        public static AssemblerEnum Used_Assembler
-        {
-            get
-            {
-                if (Settings.Default.useAssemblerAutoDetect)
-                {
-                    return AssemblerEnum.AUTO_DETECT;
-                }
-                if (Settings.Default.useAssemblerMasm)
-                {
-                    return AssemblerEnum.MASM;
-                }
-                if (Settings.Default.useAssemblerNasm)
-                {
-                    return AssemblerEnum.NASM_INTEL;
-                }
-                if (Settings.Default.useAssemblerNasm_Att)
-                {
-                    return AssemblerEnum.NASM_ATT;
-                }
-                Output_WARNING("AsmDudeToolsStatic.Used_Assembler: no assembler specified, assuming AUTO_DETECT");
-                return AssemblerEnum.AUTO_DETECT;
-            }
-
-            set
-            {
-                Settings.Default.useAssemblerAutoDetect = false;
-                Settings.Default.useAssemblerMasm = false;
-                Settings.Default.useAssemblerNasm = false;
-                Settings.Default.useAssemblerNasm_Att = false;
-
-                if (value.HasFlag(AssemblerEnum.AUTO_DETECT))
-                {
-                    Settings.Default.useAssemblerAutoDetect = true;
-                }
-                if (value.HasFlag(AssemblerEnum.MASM))
-                {
-                    Settings.Default.useAssemblerMasm = true;
-                }
-                else if (value.HasFlag(AssemblerEnum.NASM_INTEL))
-                {
-                    Settings.Default.useAssemblerNasm = true;
-                }
-                else if (value.HasFlag(AssemblerEnum.NASM_ATT))
-                {
-                    Settings.Default.useAssemblerNasm_Att = true;
-                }
-                else
-                {
-                    Output_WARNING("AsmDudeToolsStatic.Used_Assembler: no assembler specified, assuming AUTO_DETECT");
-                    Settings.Default.useAssemblerAutoDetect = true;
-                }
-            }
-        }
-
         /// <summary>Guess whether the provided buffer has assembly in Intel syntax (return true) or AT&T syntax (return false)</summary>
         public static bool Guess_Intel_Syntax(ITextBuffer buffer, int nLinesMax = 30)
         {
+            Contract.Requires(buffer != null);
+
             bool contains_register_att(List<string> line)
             {
                 foreach (string asmToken in line)
@@ -258,6 +212,8 @@ namespace AsmDude.Tools
         /// <summary>Guess whether the provided buffer has assembly in Masm syntax (return true) or Gas syntax (return false)</summary>
         public static bool Guess_Masm_Syntax(ITextBuffer buffer, int nLinesMax = 30)
         {
+            Contract.Requires(buffer != null);
+
             //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:Guess_Masm_Syntax. file=\"{1}\"", "AsmDudeToolsStatic", AsmDudeToolsStatic.GetFilename(buffer)));
             ITextSnapshot snapshot = buffer.CurrentSnapshot;
             int evidence_masm = 0;
@@ -302,6 +258,61 @@ namespace AsmDude.Tools
             }
         }
 
+        public static AssemblerEnum Used_Assembler
+        {
+            get
+            {
+                if (Settings.Default.useAssemblerAutoDetect)
+                {
+                    return AssemblerEnum.AUTO_DETECT;
+                }
+                if (Settings.Default.useAssemblerMasm)
+                {
+                    return AssemblerEnum.MASM;
+                }
+                if (Settings.Default.useAssemblerNasm)
+                {
+                    return AssemblerEnum.NASM_INTEL;
+                }
+                if (Settings.Default.useAssemblerNasm_Att)
+                {
+                    return AssemblerEnum.NASM_ATT;
+                }
+                Output_WARNING("AsmDudeToolsStatic.Used_Assembler:get: no assembler specified, assuming AUTO_DETECT");
+                return AssemblerEnum.AUTO_DETECT;
+            }
+
+            set
+            {
+                Settings.Default.useAssemblerAutoDetect = false;
+                Settings.Default.useAssemblerMasm = false;
+                Settings.Default.useAssemblerNasm = false;
+                Settings.Default.useAssemblerNasm_Att = false;
+
+                if (value.HasFlag(AssemblerEnum.AUTO_DETECT))
+                {
+                    Settings.Default.useAssemblerAutoDetect = true;
+                }
+                else if (value.HasFlag(AssemblerEnum.MASM))
+                {
+                    Settings.Default.useAssemblerMasm = true;
+                }
+                else if (value.HasFlag(AssemblerEnum.NASM_INTEL))
+                {
+                    Settings.Default.useAssemblerNasm = true;
+                }
+                else if (value.HasFlag(AssemblerEnum.NASM_ATT))
+                {
+                    Settings.Default.useAssemblerNasm_Att = true;
+                }
+                else
+                {
+                    Output_WARNING(string.Format("{0}:Used_Assembler:set: no assembler specified; value={1}, assuming AUTO_DETECT", "AsmDudeToolsStatic", value));
+                    Settings.Default.useAssemblerAutoDetect = true;
+                }
+            }
+        }
+
         public static AssemblerEnum Used_Assembler_Disassembly_Window
         {
             get
@@ -318,7 +329,7 @@ namespace AsmDude.Tools
                 {
                     return AssemblerEnum.NASM_ATT;
                 }
-                Output_WARNING("AsmDudeToolsStatic.Used_Assembler_Disassembly_Window: no assembler specified, assuming AUTO_DETECT");
+                Output_WARNING("AsmDudeToolsStatic.Used_Assembler_Disassembly_Window:get no assembler specified, assuming AUTO_DETECT");
                 return AssemblerEnum.AUTO_DETECT;
             }
 
@@ -332,7 +343,7 @@ namespace AsmDude.Tools
                 {
                     Settings.Default.useAssemblerDisassemblyAutoDetect = true;
                 }
-                if (value.HasFlag(AssemblerEnum.MASM))
+                else if (value.HasFlag(AssemblerEnum.MASM))
                 {
                     Settings.Default.useAssemblerDisassemblyMasm = true;
                 }
@@ -342,7 +353,7 @@ namespace AsmDude.Tools
                 }
                 else
                 {
-                    Output_WARNING("AsmDudeToolsStatic.Used_Assembler_Disassembly_Window: no assembler specified, assuming AUTO_DETECT");
+                    Output_WARNING(string.Format("{0}:Used_Assembler_Disassembly_Window:set: no assembler specified; value={1}, assuming AUTO_DETECT", "AsmDudeToolsStatic", value));
                     Settings.Default.useAssemblerDisassemblyAutoDetect = true;
                 }
             }
@@ -350,12 +361,14 @@ namespace AsmDude.Tools
 
         public static string GetFilename(ITextBuffer buffer, int timeout_ms = 200)
         {
+            Contract.Requires(buffer != null);
+
             return ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 Task<string> task = GetFilenameAsync(buffer);
-                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)) == task)
+                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)).ConfigureAwait(true) == task)
                 {
-                    return await task;
+                    return await task.ConfigureAwait(true);
                 }
                 else
                 {
@@ -368,6 +381,8 @@ namespace AsmDude.Tools
         /// <summary>Get the full filename (with path) of the provided buffer; returns null if such name does not exist</summary>
         public static async Task<string> GetFilenameAsync(ITextBuffer buffer)
         {
+            Contract.Requires(buffer != null);
+
             if (!ThreadHelper.CheckAccess())
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -381,6 +396,8 @@ namespace AsmDude.Tools
 
         public static (AsmTokenTag tag, SnapshotSpan? keywordSpan) GetAsmTokenTag(ITagAggregator<AsmTokenTag> aggregator, SnapshotPoint triggerPoint)
         {
+            Contract.Requires(aggregator != null);
+
             foreach (IMappingTagSpan<AsmTokenTag> asmTokenTag in aggregator.GetTags(new SnapshotSpan(triggerPoint, triggerPoint)))
             {
                 foreach (SnapshotSpan span in asmTokenTag.Span.GetSpans(triggerPoint.Snapshot.TextBuffer))
@@ -393,6 +410,8 @@ namespace AsmDude.Tools
 
         public static IEnumerable<IMappingTagSpan<AsmTokenTag>> GetAsmTokenTags(ITagAggregator<AsmTokenTag> aggregator, int lineNumber)
         {
+            Contract.Requires(aggregator != null);
+
             return aggregator.GetTags(aggregator.BufferGraph.TopBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).Extent);
         }
 
@@ -412,9 +431,9 @@ namespace AsmDude.Tools
             return ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 Task<int> task = GetFontSizeAsync();
-                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)) == task)
+                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)).ConfigureAwait(true) == task)
                 {
-                    return await task;
+                    return await task.ConfigureAwait(true);
                 }
                 else
                 {
@@ -443,9 +462,9 @@ namespace AsmDude.Tools
             return ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 Task<FontFamily> task = GetFontTypeAsync();
-                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)) == task)
+                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)).ConfigureAwait(true) == task)
                 {
-                    return await task;
+                    return await task.ConfigureAwait(true);
                 }
                 else
                 {
@@ -476,9 +495,9 @@ namespace AsmDude.Tools
             return ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 Task<Brush> task = GetFontColorAsync();
-                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)) == task)
+                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)).ConfigureAwait(true) == task)
                 {
-                    return await task;
+                    return await task.ConfigureAwait(true);
                 }
                 else
                 {
@@ -518,9 +537,9 @@ namespace AsmDude.Tools
             return ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 Task<Brush> task = GetBackgroundColorAsync();
-                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)) == task)
+                if (await System.Threading.Tasks.Task.WhenAny(task, System.Threading.Tasks.Task.Delay(timeout_ms)).ConfigureAwait(true) == task)
                 {
-                    return await task;
+                    return await task.ConfigureAwait(true);
                 }
                 else
                 {
@@ -616,7 +635,7 @@ namespace AsmDude.Tools
                 return;
             }
 
-            //Output("INFO: AsmDudeToolsStatic:errorTaskNavigateHandler: navigating to row="+task.Line);
+            //Output_INFO("AsmDudeToolsStatic:errorTaskNavigateHandler: navigating to row="+task.Line);
             int iStartIndex = task.Column & 0xFFFF;
             int iEndIndex = (task.Column >> 16) & 0xFFFF;
             mgr.NavigateToLineAndColumn(buffer, ref logicalView, task.Line, iStartIndex, task.Line, iEndIndex);
@@ -657,6 +676,8 @@ namespace AsmDude.Tools
 
         public static ImageSource Bitmap_From_Uri(Uri bitmapUri)
         {
+            Contract.Requires(bitmapUri != null);
+
             BitmapImage bitmap = new BitmapImage();
             try
             {
@@ -713,12 +734,13 @@ namespace AsmDude.Tools
         /// </summary>
         public static async System.Threading.Tasks.Task OutputAsync(string msg)
         {
+            Contract.Requires(msg != null);
+
             if (!ThreadHelper.CheckAccess())
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             }
 
-            IVsOutputWindowPane outputPane = await GetOutputPaneAsync();
             string msg2 = string.Format(CultureInfo.CurrentCulture, "{0}", msg.Trim() + Environment.NewLine);
 
             if (first_log_message)
@@ -737,6 +759,7 @@ namespace AsmDude.Tools
                 sb.Append("----------------------------------\n");
                 msg2 = sb.ToString() + msg2;
             }
+            IVsOutputWindowPane outputPane = await GetOutputPaneAsync().ConfigureAwait(true);
             if (outputPane == null)
             {
                 Debug.Write(msg2);
@@ -813,6 +836,8 @@ namespace AsmDude.Tools
 
         public static bool Is_All_Upper(string input)
         {
+            Contract.Requires(input != null);
+
             for (int i = 0; i < input.Length; i++)
             {
                 if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
@@ -825,6 +850,8 @@ namespace AsmDude.Tools
 
         public static void Disable_Message(string msg, string filename, ErrorListProvider errorListProvider)
         {
+            Contract.Requires(errorListProvider != null);
+
             Output_WARNING(msg);
 
             for (int i = 0; i < errorListProvider.Tasks.Count; ++i)
@@ -941,6 +968,8 @@ namespace AsmDude.Tools
 
         public static string Retrieve_Regular_Label(string label, AssemblerEnum assembler)
         {
+            Contract.Requires(label != null);
+
             if (assembler.HasFlag(AssemblerEnum.MASM))
             {
                 if ((label.Length > 0) && label[0].Equals('['))

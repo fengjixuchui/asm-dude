@@ -23,6 +23,7 @@
 namespace AsmDude.AsmDoc
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Input;
@@ -155,7 +156,7 @@ namespace AsmDude.AsmDoc
                             if (keyword != null)
                             {
                                 (Mnemonic mnemonic, AttType type) = AsmSourceTools.ParseMnemonic_Att(keyword, false);
-                                this.Dispatch_Goto_DocAsync(mnemonic).ConfigureAwait(false);
+                                var result = this.Dispatch_Goto_DocAsync(mnemonic).ConfigureAwait(false); // use .ConfigureAwait(false) to signal your intention for continuation.
                             }
                             this.Set_Highlight_Span(null);
                             this._view.Selection.Clear();
@@ -272,7 +273,7 @@ namespace AsmDude.AsmDoc
         private async Task<bool> Dispatch_Goto_DocAsync(Mnemonic mnemonic)
         {
             //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:DispatchGoToDoc; keyword=\"{1}\".", this.ToString(), keyword));
-            int hr = await this.Open_File_Async(mnemonic);
+            int hr = await this.Open_File_Async(mnemonic).ConfigureAwait(false); // use .ConfigureAwait(false) to signal your intention for continuation.
             return ErrorHandler.Succeeded(hr);
         }
 
@@ -342,7 +343,7 @@ namespace AsmDude.AsmDoc
 
             try
             {
-                EnvDTE.Window window = await this.GetWindowAsync(dte2, url);
+                EnvDTE.Window window = await this.GetWindowAsync(dte2, url).ConfigureAwait(false); // use .ConfigureAwait(false) to signal your intention for continuation.
                 if (window == null)
                 {
                     // vsNavigateOptionsDefault    0   The Web page opens in the currently open browser window. (Default)
@@ -444,6 +445,7 @@ namespace AsmDude.AsmDoc
 
         public static Uri GetWebBrowserWindowUrl(EnvDTE.Window windowReference)
         {
+            Contract.Requires(windowReference != null);
             ThreadHelper.ThrowIfNotOnUIThread();
 
             Uri browserUrl = new Uri(string.Empty, UriKind.RelativeOrAbsolute);
