@@ -141,7 +141,7 @@ namespace AsmDude.Tools
 
                 while ((line = file.ReadLine()) != null)
                 {
-                    if ((line.Trim().Length > 0) && (!line.StartsWith(";")))
+                    if ((line.Trim().Length > 0) && (!line.StartsWith(";", StringComparison.Ordinal)))
                     {
                         string[] columns = line.Split('\t');
                         if (columns.Length == 8)
@@ -153,7 +153,7 @@ namespace AsmDude.Tools
                                     mnemonics = new List<Mnemonic>();
                                     foreach (string mnemonicStr in mnemonicKey.Split(' '))
                                     {
-                                        Mnemonic mnemonic = AsmSourceTools.ParseMnemonic(mnemonicStr);
+                                        Mnemonic mnemonic = AsmSourceTools.ParseMnemonic(mnemonicStr, false);
                                         if (mnemonic == Mnemonic.NONE)
                                         { // check if the mnemonicStr can be translated to a list of mnemonics
                                             if (translations.TryGetValue(mnemonicStr, out IList<Mnemonic> mnemonics2))
@@ -219,7 +219,7 @@ namespace AsmDude.Tools
                 string line;
                 while ((line = file.ReadLine()) != null)
                 {
-                    if ((line.Trim().Length > 0) && (!line.StartsWith(";")))
+                    if ((line.Trim().Length > 0) && (!line.StartsWith(";", StringComparison.Ordinal)))
                     {
                         string[] columns = line.Split('\t');
                         if (columns.Length == 2)
@@ -229,7 +229,7 @@ namespace AsmDude.Tools
                             IList<Mnemonic> values = new List<Mnemonic>();
                             foreach (string mnemonicStr in columns[1].Trim().Split(' '))
                             {
-                                Mnemonic mnemonic = AsmSourceTools.ParseMnemonic(mnemonicStr);
+                                Mnemonic mnemonic = AsmSourceTools.ParseMnemonic(mnemonicStr, false);
                                 if (mnemonic == Mnemonic.NONE)
                                 {
                                     AsmDudeToolsStatic.Output_WARNING("PerformanceStore:Load_Instruction_Translation: key=" + columns[0] + ": unknown mnemonic " + mnemonicStr + " in line: " + line);

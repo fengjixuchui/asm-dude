@@ -130,7 +130,7 @@ namespace AsmDude.Squiggles
             foreach (IMappingTagSpan<AsmTokenTag> asmTokenTag in this._aggregator.GetTags(spans))
             {
                 SnapshotSpan tagSpan = asmTokenTag.Span.GetSpans(this._sourceBuffer)[0];
-                //AsmDudeToolsStatic.Output_INFO(string.Format("SquigglesTagger:GetTags: found keyword \"{0}\"", tagSpan.GetText()));
+                //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "SquigglesTagger:GetTags: found keyword \"{0}\"", tagSpan.GetText()));
 
                 int lineNumber = AsmDudeToolsStatic.Get_LineNumber(tagSpan);
 
@@ -149,7 +149,7 @@ namespace AsmDude.Squiggles
                                 }
                                 else
                                 {
-                                    //AsmDudeToolsStatic.Output_INFO(string.Format("SquigglesTagger:GetTags: found label \"{0}\"; full-label \"{1}\"", label, full_Qualified_Label));
+                                    //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "SquigglesTagger:GetTags: found label \"{0}\"; full-label \"{1}\"", label, full_Qualified_Label));
 
                                     if (usedAssember == AssemblerEnum.MASM)
                                     {
@@ -321,7 +321,7 @@ namespace AsmDude.Squiggles
                     {
                         lineContent = string.Empty;
                     }
-                    sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format("Defined at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
+                    sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format(AsmDudeToolsStatic.CultureUI, "Defined at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
                 }
                 string msg = sb.ToString().TrimEnd(Environment.NewLine.ToCharArray());
 
@@ -332,7 +332,7 @@ namespace AsmDude.Squiggles
             }
             catch (Exception e)
             {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:labelClashToolTipContent; e={1}", this.ToString(), e.ToString()));
+                AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:labelClashToolTipContent; e={1}", this.ToString(), e.ToString()));
             }
             return textBlock;
         }
@@ -345,7 +345,7 @@ namespace AsmDude.Squiggles
             int startPos = -1;
             for (int i = 0; i < lineContent.Length - lengthKeyword; ++i)
             {
-                if (lineContent.Substring(i, lengthKeyword).Equals(keyword))
+                if (lineContent.Substring(i, lengthKeyword).Equals(keyword, StringComparison.Ordinal))
                 {
                     startPos = i;
                     break;
@@ -530,7 +530,7 @@ namespace AsmDude.Squiggles
                     }
                     catch (Exception e)
                     {
-                        AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_AsmSim_Error_Task_Async; e={1}", this.ToString(), e.ToString()));
+                        AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Update_AsmSim_Error_Task_Async; e={1}", this.ToString(), e.ToString()));
                     }
                 }
             }).ConfigureAwait(false);
@@ -542,12 +542,13 @@ namespace AsmDude.Squiggles
             {
                 try
                 {
-                    string lineContent = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpper();
+                    //TODO why the upper here?
+                    string lineContent_upcase = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpperInvariant();
                     ErrorTask errorTask = new ErrorTask()
                     {
                         SubcategoryIndex = (int)AsmMessageEnum.SYNTAX_ERROR,
                         Line = lineNumber,
-                        Column = Get_Keyword_Begin_End(lineContent, keyword),
+                        Column = Get_Keyword_Begin_End(lineContent_upcase, keyword),
                         Text = "Syntax Error: " + message,
                         ErrorCategory = TaskErrorCategory.Error,
                         Document = AsmDudeToolsStatic.GetFilenameAsync(this._sourceBuffer).Result,
@@ -557,7 +558,7 @@ namespace AsmDude.Squiggles
                 }
                 catch (Exception e)
                 {
-                    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:AddErrorTask_Syntax_Error_Async; e={1}", this.ToString(), e.ToString()));
+                    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AddErrorTask_Syntax_Error_Async; e={1}", this.ToString(), e.ToString()));
                 }
             }).ConfigureAwait(false);
         }
@@ -568,12 +569,13 @@ namespace AsmDude.Squiggles
             {
                 try
                 {
-                    string lineContent = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpper();
+                    //TODO why the upper here?
+                    string lineContent_upcase = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpperInvariant();
                     ErrorTask errorTask = new ErrorTask()
                     {
                         SubcategoryIndex = (int)AsmMessageEnum.USAGE_OF_UNDEFINED,
                         Line = lineNumber,
-                        Column = Get_Keyword_Begin_End(lineContent, keyword),
+                        Column = Get_Keyword_Begin_End(lineContent_upcase, keyword),
                         Text = "Semantic Warning: " + message,
                         ErrorCategory = TaskErrorCategory.Warning,
                         Document = AsmDudeToolsStatic.GetFilenameAsync(this._sourceBuffer).Result,
@@ -583,7 +585,7 @@ namespace AsmDude.Squiggles
                 }
                 catch (Exception e)
                 {
-                    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:AddErrorTask_Usage_Undefined_Async; e={1}", this.ToString(), e.ToString()));
+                    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AddErrorTask_Usage_Undefined_Async; e={1}", this.ToString(), e.ToString()));
                 }
             }).ConfigureAwait(false);
         }
@@ -594,12 +596,13 @@ namespace AsmDude.Squiggles
             {
                 try
                 {
-                    string lineContent = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpper();
+                    //TODO why the upper here?
+                    string lineContent_upcase = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpperInvariant();
                     ErrorTask errorTask = new ErrorTask()
                     {
                         SubcategoryIndex = (int)AsmMessageEnum.REDUNDANT,
                         Line = lineNumber,
-                        Column = Get_Keyword_Begin_End(lineContent, keyword),
+                        Column = Get_Keyword_Begin_End(lineContent_upcase, keyword),
                         Text = "Semantic Warning: " + message,
                         ErrorCategory = TaskErrorCategory.Warning,
                         Document = AsmDudeToolsStatic.GetFilenameAsync(this._sourceBuffer).Result,
@@ -609,7 +612,7 @@ namespace AsmDude.Squiggles
                 }
                 catch (Exception e)
                 {
-                    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:AddErrorTask_Redundant_Instruction_Async; e={1}", this.ToString(), e.ToString()));
+                    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AddErrorTask_Redundant_Instruction_Async; e={1}", this.ToString(), e.ToString()));
                 }
             }).ConfigureAwait(false);
         }
@@ -620,12 +623,13 @@ namespace AsmDude.Squiggles
             {
                 try
                 {
-                    string lineContent = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpper();
+                    //TODO why the upper here?
+                    string lineContent_upcase = this._sourceBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText().ToUpperInvariant();
                     ErrorTask errorTask = new ErrorTask()
                     {
                         SubcategoryIndex = (int)AsmMessageEnum.UNREACHABLE,
                         Line = lineNumber,
-                        Column = Get_Keyword_Begin_End(lineContent, keyword),
+                        Column = Get_Keyword_Begin_End(lineContent_upcase, keyword),
                         Text = "Semantic Warning: " + message,
                         ErrorCategory = TaskErrorCategory.Warning,
                         Document = AsmDudeToolsStatic.GetFilenameAsync(this._sourceBuffer).Result,
@@ -635,7 +639,7 @@ namespace AsmDude.Squiggles
                 }
                 catch (Exception e)
                 {
-                    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:AddErrorTask_Unreachable_Instruction_Async; e={1}", this.ToString(), e.ToString()));
+                    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AddErrorTask_Unreachable_Instruction_Async; e={1}", this.ToString(), e.ToString()));
                 }
             }).ConfigureAwait(false);
         }
@@ -754,7 +758,7 @@ namespace AsmDude.Squiggles
                     }
                     catch (Exception e)
                     {
-                        AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Error_Tasks_Labels_Async; e={1}", this.ToString(), e.ToString()));
+                        AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Update_Error_Tasks_Labels_Async; e={1}", this.ToString(), e.ToString()));
                     }
                 }
             }).ConfigureAwait(false);
@@ -778,7 +782,7 @@ namespace AsmDude.Squiggles
                 }
                 catch (Exception e)
                 {
-                    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Squiggles_Tasks_Async; e={1}", this.ToString(), e.ToString()));
+                    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Update_Squiggles_Tasks_Async; e={1}", this.ToString(), e.ToString()));
                 }
             }).ConfigureAwait(false);
         }
@@ -800,7 +804,7 @@ namespace AsmDude.Squiggles
                     }
                     catch (Exception e)
                     {
-                        AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Update_Squiggles_Tasks_Async; e={1}", this.ToString(), e.ToString()));
+                        AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Update_Squiggles_Tasks_Async; e={1}", this.ToString(), e.ToString()));
                     }
                 }
             }).ConfigureAwait(false);

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
 // Copyright (c) 2019 Henk-Jan Lebbink
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -20,16 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-
 namespace AsmTools
 {
+    using System;
+    using System.Collections.Generic;
+
     public enum RegisterType
     {
-        UNKNOWN, BIT8, BIT16, BIT32, BIT64, MMX, XMM, YMM, ZMM, SEGMENT, OPMASK, CONTROL, DEBUG, BOUND
+        UNKNOWN,
+        BIT8,
+        BIT16,
+        BIT32,
+        BIT64,
+        MMX,
+        XMM,
+        YMM,
+        ZMM,
+        SEGMENT,
+        OPMASK,
+        CONTROL,
+        DEBUG,
+        BOUND,
     }
 
     public static class RegisterTools
@@ -46,34 +57,22 @@ namespace AsmTools
             }
         }
 
-        private static string ToCapitals(string str, bool strIsCapitals)
-        {
-            Contract.Requires(str != null);
-#if DEBUG
-            if (strIsCapitals && (str != str.ToUpper()))
-            {
-                throw new Exception();
-            }
-            #endif
-            return (strIsCapitals) ? str : str.ToUpper();
-        }
-
-        public static (bool Valid, Rn Reg, int NBits) ToRn(string str, bool isCapitals = false)
+        public static (bool valid, Rn reg, int nBits) ToRn(string str, bool isCapitals = false)
         {
             Rn rn = ParseRn(str, isCapitals);
             return (rn == Rn.NOREG)
-                ? (Valid: false, Reg: Rn.NOREG, NBits: 0)
-                : (Valid: true, Reg: rn, NBits: NBits(rn));
+                ? (valid: false, reg: Rn.NOREG, nBits: 0)
+                : (valid: true, reg: rn, nBits: NBits(rn));
         }
 
         public static Rn ParseRn(string str, bool strIsCapitals = false)
         {
-            return (_register_cache.TryGetValue(ToCapitals(str, strIsCapitals), out Rn value)) ? value : Rn.NOREG;
+            return (_register_cache.TryGetValue(AsmSourceTools.ToCapitals(str, strIsCapitals), out Rn value)) ? value : Rn.NOREG;
         }
 
         public static Rn ParseRn_OLD(string str, bool strIsCapitals = false)
         {
-            switch (ToCapitals(str, strIsCapitals))
+            switch (AsmSourceTools.ToCapitals(str, strIsCapitals))
             {
                 case "RAX": return Rn.RAX;
                 case "EAX": return Rn.EAX;
@@ -323,7 +322,7 @@ namespace AsmTools
 
         public static bool IsRn(string str, bool strIsCapitals = false)
         {
-            return _register_cache.ContainsKey(ToCapitals(str, strIsCapitals));
+            return _register_cache.ContainsKey(AsmSourceTools.ToCapitals(str, strIsCapitals));
         }
 
         public static int NBits(Rn rn)
@@ -540,8 +539,6 @@ namespace AsmTools
         /// <summary>
         /// return regular pattern to select the provided register and aliased register names
         /// </summary>
-        /// <param name="reg"></param>
-        /// <returns></returns>
         public static string GetRelatedRegister(Rn reg)
         {
             switch (reg)
@@ -783,7 +780,7 @@ namespace AsmTools
 
         public static bool IsRegister(string keyword, bool strIsCapitals = false)
         {
-            return _register_cache.ContainsKey(ToCapitals(keyword, strIsCapitals));
+            return _register_cache.ContainsKey(AsmSourceTools.ToCapitals(keyword, strIsCapitals));
         }
 
         public static RegisterType GetRegisterType(Rn rn)
@@ -1028,7 +1025,6 @@ namespace AsmTools
 
                 default:
                     break;
-
             }
             return RegisterType.UNKNOWN;
         }
@@ -1123,7 +1119,7 @@ namespace AsmTools
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Get the 64 bits register that belongs to the provided register. eg. ax return rax
         /// </summary>
         public static Rn Get64BitsRegister(Rn rn)
@@ -1719,6 +1715,7 @@ namespace AsmTools
                 default: return false;
             }
         }
+
         public static bool IsBoundRegister(Rn rn)
         {
             switch (rn)
@@ -1731,6 +1728,7 @@ namespace AsmTools
                 default: return false;
             }
         }
+
         public static bool IsControlRegister(Rn rn)
         {
             switch (rn)
@@ -1748,6 +1746,7 @@ namespace AsmTools
                     return false;
             }
         }
+
         public static bool IsDebugRegister(Rn rn)
         {
             switch (rn)
@@ -1764,6 +1763,7 @@ namespace AsmTools
                     return false;
             }
         }
+
         public static bool IsSegmentRegister(Rn rn)
         {
             switch (rn)
@@ -1778,6 +1778,7 @@ namespace AsmTools
                     return false;
             }
         }
+
         public static bool IsGeneralPurposeRegister(Rn rn)
         {
             switch (rn)
@@ -1854,6 +1855,7 @@ namespace AsmTools
                 default: return false;
             }
         }
+
         public static bool IsMmxRegister(Rn rn)
         {
             switch (rn)
@@ -1869,6 +1871,7 @@ namespace AsmTools
                 default: return false;
             }
         }
+
         public static bool Is_SIMD_Register(Rn rn)
         {
             switch (rn)
@@ -1974,6 +1977,7 @@ namespace AsmTools
                     return false;
             }
         }
+
         public static bool IsSseRegister(Rn rn)
         {
             switch (rn)
@@ -2014,6 +2018,7 @@ namespace AsmTools
                 default: return false;
             }
         }
+
         public static bool IsAvxRegister(Rn rn)
         {
             switch (rn)
@@ -2054,6 +2059,7 @@ namespace AsmTools
                 default: return false;
             }
         }
+
         public static bool IsAvx512Register(Rn rn)
         {
             switch (rn)

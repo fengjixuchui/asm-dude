@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
 // Copyright (c) 2019 Henk-Jan Lebbink
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -24,7 +24,7 @@ namespace AsmTools
 {
     public class AsmParameters
     {
-        public bool assume_initial_known_mem;
+        private bool assume_initial_known_mem;
         public bool mode_64bit;
         public bool mode_32bit;
         public bool mode_16bit;

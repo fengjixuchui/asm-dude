@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
 // Copyright (c) 2019 Henk-Jan Lebbink
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -20,19 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using System.Diagnostics.Contracts;
-
 namespace AsmTools
 {
+    using System;
+    using System.Diagnostics.Contracts;
+
     public class Operand
     {
         private readonly string _str;
         private readonly Ot1 _type;
         private readonly Rn _rn = Rn.NOREG;
         private ulong _imm = 0;
+
         public int NBits { get; set; }
-        private readonly (Rn BaseReg, Rn IndexReg, int Scale, long Displacement) _mem;
+
+        private readonly (Rn baseReg, Rn indexReg, int scale, long displacement) _mem;
         public readonly string ErrorMessage;
 
         /// <summary>constructor</summary>
@@ -40,69 +42,58 @@ namespace AsmTools
         {
             Contract.Requires(token != null);
 
-#if DEBUG
-            if (isCapitals && (token != token.ToUpper()))
-            {
-                throw new Exception();
-            }
-#endif
-
-            if (!isCapitals)
-            {
-                token = token.ToUpper();
-            }
-
+            token = AsmSourceTools.ToCapitals(token, isCapitals);
             this._str = token;
 
-            //TODO: properly handle optional elements {K}{Z} {AES}{ER}
+            // TODO: properly handle optional elements {K}{Z} {AES}{ER}
             string token2 = token.Contains("{")
                 ? token.
-                    Replace("{K0}", "").
-                    Replace("{K1}", "").
-                    Replace("{K2}", "").
-                    Replace("{K3}", "").
-                    Replace("{K4}", "").
-                    Replace("{K5}", "").
-                    Replace("{K6}", "").
-                    Replace("{K7}", "").
-                    Replace("{Z}", "").
-                    Replace("{ER}", "").
-                    Replace("{SAE}", "").
-                    Replace("{1TO4}", "").
-                    Replace("{1TO8}", "").
-                    Replace("{1TO16}", "")
+                    Replace("{K0}", string.Empty).
+                    Replace("{K1}", string.Empty).
+                    Replace("{K2}", string.Empty).
+                    Replace("{K3}", string.Empty).
+                    Replace("{K4}", string.Empty).
+                    Replace("{K5}", string.Empty).
+                    Replace("{K6}", string.Empty).
+                    Replace("{K7}", string.Empty).
+                    Replace("{Z}", string.Empty).
+                    Replace("{ER}", string.Empty).
+                    Replace("{SAE}", string.Empty).
+                    Replace("{1TO4}", string.Empty).
+                    Replace("{1TO8}", string.Empty).
+                    Replace("{1TO16}", string.Empty)
                 : token2 = token;
 
-            (bool Valid, Rn Reg, int NBits) t0 = RegisterTools.ToRn(token2, true);
-            if (t0.Valid)
+            (bool valid, Rn reg, int nBits) t0 = RegisterTools.ToRn(token2, true);
+            if (t0.valid)
             {
                 this._type = Ot1.reg;
-                this._rn = t0.Reg;
-                this.NBits = t0.NBits;
+                this._rn = t0.reg;
+                this.NBits = t0.nBits;
             }
             else
             {
                 this._rn = Rn.NOREG;
 
-                (bool Valid, ulong Value, int NBits) t1 = AsmSourceTools.Evaluate_Constant(token2, true);
-                if (t1.Valid)
+                (bool valid, ulong value, int nBits) = AsmSourceTools.Evaluate_Constant(token2, true);
+                if (valid)
                 {
                     this._type = Ot1.imm;
-                    this._imm = t1.Value;
-                    this.NBits = t1.NBits;
+                    this._imm = value;
+                    this.NBits = nBits;
                 }
                 else
                 {
-                    (bool Valid, Rn BaseReg, Rn IndexReg, int Scale, long Displacement, int NBits, string ErrorMessage) t2 = AsmSourceTools.Parse_Mem_Operand(token2, true);
-                    if (t2.Valid)
+                    (bool valid2, Rn baseReg, Rn indexReg, int scale, long displacement, int nBits2, string errorMessage) = AsmSourceTools.Parse_Mem_Operand(token2, true);
+                    if (valid2)
                     {
                         this._type = Ot1.mem;
-                        this._mem = (t2.BaseReg, t2.IndexReg, t2.Scale, t2.Displacement);
-                        this.NBits = t2.NBits;
+                        this._mem = (baseReg, indexReg, scale, displacement);
+                        this.NBits = nBits2;
                     }
                     else
                     {
-                        this.ErrorMessage = t2.ErrorMessage;
+                        this.ErrorMessage = errorMessage;
                         this._type = Ot1.UNKNOWN;
                         this.NBits = -1;
                     }
@@ -111,15 +102,19 @@ namespace AsmTools
         }
 
         public Ot1 Type { get { return this._type; } }
+
         public bool IsReg { get { return this._type == Ot1.reg; } }
+
         public bool IsMem { get { return this._type == Ot1.mem; } }
+
         public bool IsImm { get { return this._type == Ot1.imm; } }
 
         public Rn Rn { get { return this._rn; } }
+
         public ulong Imm { get { return this._imm; } }
 
-        /// <summary> Return tup with BaseReg, IndexReg, Scale and Displacement. Offset = Base + (Index * Scale) + Displacement </summary>
-        public (Rn BaseReg, Rn IndexReg, int Scale, long Displacement) Mem { get { return this._mem; } }
+        /// <summary> Gets tup with BaseReg, IndexReg, Scale and Displacement. Offset = Base + (Index * Scale) + Displacement </summary>
+        public (Rn baseReg, Rn indexReg, int scale, long displacement) Mem { get { return this._mem; } }
 
         /// <summary> Sign Extend the imm to the provided number of bits;</summary>
         public void SignExtend(int nBits)
@@ -164,6 +159,7 @@ namespace AsmTools
                 Console.WriteLine("WARNING: Operand:ZeroExtend: can only zero extend imm.");
             }
         }
+
         public override string ToString()
         {
             Contract.Assert(this._str != null);

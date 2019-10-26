@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
 // Copyright (c) 2019 Henk-Jan Lebbink
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using System.Diagnostics.Contracts;
-
 namespace AsmTools
 {
+    using System;
+    using System.Diagnostics.Contracts;
+
     [Flags]
     public enum MicroArch
     {
@@ -41,16 +41,16 @@ namespace AsmTools
         Tigerlake = 1 << 9,
 
         KnightsCorner = 1 << 10,
-        KnightsLanding = 1 << 11
+        KnightsLanding = 1 << 11,
     }
 
     public static partial class AsmSourceTools
     {
-        public static MicroArch ParseMicroArch(string str)
+        public static MicroArch ParseMicroArch(string str, bool strIsCapitals)
         {
             Contract.Requires(str != null);
 
-            switch (str.ToUpper())
+            switch (ToCapitals(str, strIsCapitals))
             {
                 case "SANDYBRIDGE": return MicroArch.SandyBridge;
                 case "IVYBRIDGE": return MicroArch.IvyBridge;

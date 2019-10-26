@@ -23,7 +23,6 @@
 namespace AsmDude.SignatureHelp
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Text;
     using AsmDude.Tools;
@@ -136,10 +135,11 @@ namespace AsmDude.SignatureHelp
 
     public static class AsmSignatureTools
     {
-        public static AsmSignatureEnum[] Parse_Operand_Type_Enum(string str)
+        public static AsmSignatureEnum[] Parse_Operand_Type_Enum(string str, bool strIsCapitals)
         {
             Contract.Requires(str != null);
-            switch (str.ToUpper().Trim())
+
+            switch (AsmSourceTools.ToCapitals(str, strIsCapitals).Trim())
             {
                 #region Memory
                 case "M": return new AsmSignatureEnum[] { AsmSignatureEnum.MEM };
@@ -640,8 +640,9 @@ namespace AsmDude.SignatureHelp
         public static bool Is_Allowed_Misc(string misc, ISet<AsmSignatureEnum> allowedOperands)
         {
             Contract.Requires(misc != null);
+            Contract.Requires(misc == misc.ToUpperInvariant());
             Contract.Requires(allowedOperands != null);
-            Contract.Requires(misc == misc.ToUpper());
+
             switch (misc)
             {
                 case "PTR":

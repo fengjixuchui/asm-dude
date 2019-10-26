@@ -130,7 +130,7 @@ namespace AsmDude.SignatureHelp
             }
             catch (Exception e)
             {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:AugmentSignatureHelpSession; e={1}", this.ToString(), e.ToString()));
+                AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AugmentSignatureHelpSession; e={1}", this.ToString(), e.ToString()));
             }
         }
 
@@ -143,7 +143,7 @@ namespace AsmDude.SignatureHelp
             if (session.Signatures.Count > 0)
             {
                 ITrackingSpan applicableToSpan = session.Signatures[0].ApplicableToSpan;
-                string text = applicableToSpan.GetText(applicableToSpan.TextBuffer.CurrentSnapshot).Trim().ToUpper();
+                string text_upcase = applicableToSpan.GetText(applicableToSpan.TextBuffer.CurrentSnapshot).Trim().ToUpperInvariant();
 
                 AsmDudeToolsStatic.Output_INFO("AsmSignatureHelpSource: GetBestMatch: session.Signatures.Count=" + session.Signatures.Count);
                 /*

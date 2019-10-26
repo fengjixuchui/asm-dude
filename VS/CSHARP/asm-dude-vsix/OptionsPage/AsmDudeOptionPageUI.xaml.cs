@@ -36,7 +36,7 @@ namespace AsmDude.OptionsPage
         {
             this.InitializeComponent();
 
-            this.version_UI.Content = "Asm Dude v" + typeof(AsmDudePackage).Assembly.GetName().Version.ToString() + " (" + ApplicationInformation.CompileDate.ToUniversalTime().ToString() + ")";
+            this.version_UI.Content = "Asm Dude v" + typeof(AsmDudePackage).Assembly.GetName().Version.ToString() + " (" + ApplicationInformation.CompileDate.ToUniversalTime().ToString(AsmDudeToolsStatic.CultureUI) + ")";
 
             #region setup handlers
             this.SyntaxHighlighting_On_UI.Click += (o, i) => { this.SyntaxHighlighting_Update(this.SyntaxHighlighting_On); };
@@ -75,12 +75,12 @@ namespace AsmDude.OptionsPage
             {
                 try
                 {
-                    //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:SetPropValue: propName={1}; o={2}", this.ToString(), propName, o.ToString()));
+                    //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:SetPropValue: propName={1}; o={2}", this.ToString(), propName, o.ToString()));
                     this.GetType().GetProperty(propName).SetValue(this, o);
                 }
                 catch (Exception)
                 {
-                    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:SetPropValue: Could not find property={1}; o={2}", this.ToString(), propName, o.ToString()));
+                    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:SetPropValue: Could not find property={1}; o={2}", this.ToString(), propName, o.ToString()));
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace AsmDude.OptionsPage
             set { this.CodeFolding_EndTag_UI.Text = value; }
         }
 
-    #endregion Code Folding
+        #endregion Code Folding
 
         #region Syntax Highlighting
 
@@ -1155,7 +1155,7 @@ namespace AsmDude.OptionsPage
 
         public NumerationEnum AsmSim_Show_Register_In_Code_Completion_Numeration
         {
-            get { return AsmSourceTools.ParseNumeration(this.AsmSim_Show_Register_In_Code_Completion_Numeration_UI.Text); }
+            get { return AsmSourceTools.ParseNumeration(this.AsmSim_Show_Register_In_Code_Completion_Numeration_UI.Text, false); }
             set { this.AsmSim_Show_Register_In_Code_Completion_Numeration_UI.Text = value.ToString(); }
         }
 
@@ -1167,7 +1167,7 @@ namespace AsmDude.OptionsPage
 
         public NumerationEnum AsmSim_Show_Register_In_Register_Tooltip_Numeration
         {
-            get { return AsmSourceTools.ParseNumeration(this.AsmSim_Show_Register_In_Register_Tooltip_Numeration_UI.Text); }
+            get { return AsmSourceTools.ParseNumeration(this.AsmSim_Show_Register_In_Register_Tooltip_Numeration_UI.Text, false); }
             set { this.AsmSim_Show_Register_In_Register_Tooltip_Numeration_UI.Text = value.ToString(); }
         }
 
@@ -1179,7 +1179,7 @@ namespace AsmDude.OptionsPage
 
         public NumerationEnum AsmSim_Show_Register_In_Instruction_Tooltip_Numeration
         {
-            get { return AsmSourceTools.ParseNumeration(this.AsmSim_Show_Register_In_Instruction_Tooltip_Numeration_UI.Text); }
+            get { return AsmSourceTools.ParseNumeration(this.AsmSim_Show_Register_In_Instruction_Tooltip_Numeration_UI.Text, false); }
             set { this.AsmSim_Show_Register_In_Instruction_Tooltip_Numeration_UI.Text = value.ToString(); }
         }
 

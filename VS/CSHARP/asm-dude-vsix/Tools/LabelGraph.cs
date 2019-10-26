@@ -87,7 +87,7 @@ namespace AsmDude.Tools
                 ITextDocumentFactoryService docFactory,
                 IContentType contentType)
         {
-            //AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:constructor: creating a label graph for {0}", AsmDudeToolsStatic.GetFileName(buffer)));
+            //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:constructor: creating a label graph for {0}", AsmDudeToolsStatic.GetFileName(buffer)));
             this._buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
             this._aggregatorFactory = aggregatorFactory ?? throw new ArgumentNullException(nameof(aggregatorFactory));
             this.Error_List_Provider = errorListProvider ?? throw new ArgumentNullException(nameof(errorListProvider));
@@ -111,7 +111,7 @@ namespace AsmDude.Tools
             if (buffer.CurrentSnapshot.LineCount >= AsmDudeToolsStatic.MaxFileLines)
             {
                 this.Enabled = false;
-                AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:LabelGraph; file {1} contains {2} lines which is more than maxLines {3}; switching off label analysis", this.ToString(), AsmDudeToolsStatic.GetFilename(buffer), buffer.CurrentSnapshot.LineCount, AsmDudeToolsStatic.MaxFileLines));
+                AsmDudeToolsStatic.Output_WARNING(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:LabelGraph; file {1} contains {2} lines which is more than maxLines {3}; switching off label analysis", this.ToString(), AsmDudeToolsStatic.GetFilename(buffer), buffer.CurrentSnapshot.LineCount, AsmDudeToolsStatic.MaxFileLines));
             }
 
             if (this.Enabled)
@@ -267,7 +267,7 @@ namespace AsmDude.Tools
                         {
                             lineContent = string.Empty;
                         }
-                        result.Add(entry.Key, AsmDudeToolsStatic.Cleanup(string.Format("LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
+                        result.Add(entry.Key, AsmDudeToolsStatic.Cleanup(string.Format(AsmDudeToolsStatic.CultureUI, "LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
                     }
                 }
                 return result;
@@ -326,13 +326,13 @@ namespace AsmDude.Tools
                     results.UnionWith(lines);
                 }
             }
-            if (full_Qualified_Label.Equals(label))
+            if (full_Qualified_Label.Equals(label, StringComparison.Ordinal))
             {
                 AssemblerEnum usedAssember = AsmDudeToolsStatic.Used_Assembler;
                 foreach (KeyValuePair<string, IList<uint>> entry in this._usedAt)
                 {
                     string regular_Label = AsmDudeToolsStatic.Retrieve_Regular_Label(entry.Key, usedAssember);
-                    if (label.Equals(regular_Label))
+                    if (label.Equals(regular_Label, StringComparison.Ordinal))
                     {
                         results.UnionWith(entry.Value);
                     }
@@ -390,7 +390,7 @@ namespace AsmDude.Tools
 
         private void Disable()
         {
-            string msg = string.Format("Performance of LabelGraph is horrible: disabling label analysis for {0}.", this._thisFilename);
+            string msg = string.Format(AsmDudeToolsStatic.CultureUI, "Performance of LabelGraph is horrible: disabling label analysis for {0}.", this._thisFilename);
             AsmDudeToolsStatic.Output_WARNING(msg);
 
             this.Enabled = false;
@@ -414,7 +414,7 @@ namespace AsmDude.Tools
 
         private void Buffer_Changed(object sender, TextContentChangedEventArgs e)
         {
-            //AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:OnTextBufferChanged: number of changes={0}; first change: old={1}; new={2}", e.Changes.Count, e.Changes[0].OldText, e.Changes[0].NewText));
+            //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:OnTextBufferChanged: number of changes={0}; first change: old={1}; new={2}", e.Changes.Count, e.Changes[0].OldText, e.Changes[0].NewText));
             if (!this.Enabled)
             {
                 return;
@@ -450,7 +450,7 @@ namespace AsmDude.Tools
                                 case 1:
                                     {
                                         int lineNumber = e.Before.GetLineNumberFromPosition(textChange.OldPosition);
-                                        //AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:OnTextBufferChanged: old={0}; new={1}; LineNumber={2}", textChange.OldText, textChange.NewText, lineNumber));
+                                        //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:OnTextBufferChanged: old={0}; new={1}; LineNumber={2}", textChange.OldText, textChange.NewText, lineNumber));
                                         this.Shift_Linenumber(lineNumber + 1, 1);
                                         this.Update_Linenumber(buffer, aggregator, lineNumber, (uint)lineNumber);
                                     }
@@ -458,14 +458,14 @@ namespace AsmDude.Tools
                                 case -1:
                                     {
                                         int lineNumber = e.Before.GetLineNumberFromPosition(textChange.OldPosition);
-                                        //AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:OnTextBufferChanged: old={0}; new={1}; LineNumber={2}", textChange.OldText, textChange.NewText, lineNumber));
+                                        //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:OnTextBufferChanged: old={0}; new={1}; LineNumber={2}", textChange.OldText, textChange.NewText, lineNumber));
                                         this.Shift_Linenumber(lineNumber + 1, -1);
                                         this.Update_Linenumber(buffer, aggregator, lineNumber, (uint)lineNumber);
                                         this.Update_Linenumber(buffer, aggregator, lineNumber - 1, (uint)lineNumber);
                                     }
                                     break;
                                 default:
-                                    //AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:OnTextBufferChanged: lineDelta={0}", textChange.LineCountDelta));
+                                    //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:OnTextBufferChanged: lineDelta={0}", textChange.LineCountDelta));
                                     this.Reset();
                                     break;
                             }
@@ -524,7 +524,7 @@ namespace AsmDude.Tools
                             string label = Get_Text(buffer, asmTokenTag);
                             string extra_Tag_Info = asmTokenTag.Tag.Misc;
 
-                            if ((extra_Tag_Info != null) && extra_Tag_Info.Equals(AsmTokenTag.MISC_KEYWORD_PROTO))
+                            if ((extra_Tag_Info != null) && extra_Tag_Info.Equals(AsmTokenTag.MISC_KEYWORD_PROTO, StringComparison.Ordinal))
                             {
                                 //AsmDudeToolsStatic.Output_INFO("LabelGraph:Add_Linenumber: found PROTO labelDef \"" + label + "\" at line " + lineNumber);
                                 Add_To_Dictionary(label, id, this._defAt_PROTO);
@@ -552,9 +552,8 @@ namespace AsmDude.Tools
                         }
                     case AsmTokenType.Directive:
                         {
-                            string directiveStr = Get_Text(buffer, asmTokenTag).ToUpper();
-
-                            switch (directiveStr)
+                            string directive_upcase = Get_Text(buffer, asmTokenTag).ToUpperInvariant();
+                            switch (directive_upcase)
                             {
                                 case "%INCLUDE":
                                 case "INCLUDE":
@@ -610,11 +609,11 @@ namespace AsmDude.Tools
                 }
                 if (includeFilename.Length > 2)
                 {
-                    if (includeFilename.StartsWith("[") && includeFilename.EndsWith("]"))
+                    if (includeFilename.StartsWith("[", StringComparison.Ordinal) && includeFilename.EndsWith("]", StringComparison.Ordinal))
                     {
                         includeFilename = includeFilename.Substring(1, includeFilename.Length - 2);
                     }
-                    else if (includeFilename.StartsWith("\"") && includeFilename.EndsWith("\""))
+                    else if (includeFilename.StartsWith("\"", StringComparison.Ordinal) && includeFilename.EndsWith("\"", StringComparison.Ordinal))
                     {
                         includeFilename = includeFilename.Substring(1, includeFilename.Length - 2);
                     }
@@ -704,7 +703,7 @@ namespace AsmDude.Tools
             if (lineCountDelta > 0)
             {
                 /*
-                AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:shiftLineNumber: starting from line {0} everything is shifted +{1}", lineNumber, lineCountDelta));
+                AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:shiftLineNumber: starting from line {0} everything is shifted +{1}", lineNumber, lineCountDelta));
 
                 foreach (KeyValuePair<string, IList<uint>> entry in this._usedAt) {
                     IList<uint> values = entry.Value;
@@ -742,7 +741,7 @@ namespace AsmDude.Tools
             }
             else
             {
-                //AsmDudeToolsStatic.Output_INFO(string.Format("LabelGraph:shiftLineNumber: starting from line {0} everything is shifted {1}", lineNumber, lineCountDelta));
+                //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "LabelGraph:shiftLineNumber: starting from line {0} everything is shifted {1}", lineNumber, lineCountDelta));
             }
         }
 

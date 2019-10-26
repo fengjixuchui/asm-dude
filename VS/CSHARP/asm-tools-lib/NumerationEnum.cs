@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
 // Copyright (c) 2019 Henk-Jan Lebbink
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -22,24 +22,24 @@
 
 namespace AsmTools
 {
-    public enum NumerationEnum : byte
+    public enum NumerationEnum
     {
         UNKNOWN,
         HEX,
         BIN,
         DEC,
-        OCT
+        OCT,
     }
 
     public static partial class AsmSourceTools
     {
-        public static NumerationEnum ParseNumeration(string str)
+        public static NumerationEnum ParseNumeration(string str, bool strIsCapitals)
         {
-            if ((str == null) || (str.Length == 0))
+            if (string.IsNullOrEmpty(str))
             {
                 return NumerationEnum.UNKNOWN;
             }
-            switch (str.ToUpper().Trim())
+            switch (ToCapitals(str, strIsCapitals).Trim())
             {
                 case "HEX": return NumerationEnum.HEX;
                 case "BIN": return NumerationEnum.BIN;

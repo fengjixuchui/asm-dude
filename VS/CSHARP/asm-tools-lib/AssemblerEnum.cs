@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
 // Copyright (c) 2019 Henk-Jan Lebbink
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -20,31 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-
 namespace AsmTools
 {
+    using System;
+
     [Flags]
-    public enum AssemblerEnum 
+    public enum AssemblerEnum
     {
         UNKNOWN = 0,
         MASM = 1 << 0,
         NASM_INTEL = 1 << 1,
         NASM_ATT = 1 << 2,
         ALL = NASM_INTEL | NASM_ATT | MASM,
-        AUTO_DETECT = 1 << 3
+        AUTO_DETECT = 1 << 3,
     }
 
     public static partial class AsmSourceTools
     {
-        public static AssemblerEnum ParseAssembler(string str)
+        public static AssemblerEnum ParseAssembler(string str, bool strIsCapitals)
         {
-            if ((str == null) || (str.Length == 0))
+            if (string.IsNullOrEmpty(str))
             {
                 return AssemblerEnum.UNKNOWN;
             }
             AssemblerEnum result = AssemblerEnum.UNKNOWN;
-            foreach (string str2 in str.ToUpper().Split(','))
+
+            foreach (string str2 in ToCapitals(str, strIsCapitals).Split(','))
             {
                 switch (str2.Trim())
                 {

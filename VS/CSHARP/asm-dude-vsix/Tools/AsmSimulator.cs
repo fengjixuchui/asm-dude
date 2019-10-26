@@ -25,6 +25,7 @@ namespace AsmDude.Tools
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using Amib.Threading;
@@ -129,7 +130,7 @@ namespace AsmDude.Tools
                     { "unsat-core", "false" },    // enable generation of unsat cores
                     { "model", "false" },         // enable model generation
                     { "proof", "false" },         // enable proof generation
-                    { "timeout", Settings.Default.AsmSim_Z3_Timeout_MS.ToString() },
+                    { "timeout", Settings.Default.AsmSim_Z3_Timeout_MS.ToString(CultureInfo.InvariantCulture) },
                 };
                 this.Tools = new AsmSim.Tools(settings);
                 if (Settings.Default.AsmSim_64_Bits)
@@ -260,30 +261,30 @@ namespace AsmDude.Tools
 
         private async System.Threading.Tasks.Task Schedule_Reset_Async()
         {
-            var task = System.Threading.Tasks.Task.Run(() =>
+            System.Threading.Tasks.Task task = System.Threading.Tasks.Task.Run(() =>
             {
                 bool changed;
                 lock (this._resetLock)
                 {
-                    string programStr = this._buffer.CurrentSnapshot.GetText().ToUpper();
-                    string[] lines = programStr.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                    string program_upcase = this._buffer.CurrentSnapshot.GetText().ToUpperInvariant();
+                    string[] lines_upcase = program_upcase.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
                     #region Restrict input to max number of lines
-                    if (lines.Length > MAX_LINES)
+                    if (lines_upcase.Length > MAX_LINES)
                     {
-                        Array.Resize(ref lines, MAX_LINES);
+                        Array.Resize(ref lines_upcase, MAX_LINES);
                     }
                     #endregion
 
                     StringBuilder sb = new StringBuilder();
-                    string pragmaKeyword = Settings.Default.AsmSim_Pragma_Assume.ToUpper();
-                    int pragmaKeywordLength = pragmaKeyword.Length;
+                    string pragmaKeyword_upcase = Settings.Default.AsmSim_Pragma_Assume.ToUpperInvariant();
+                    int pragmaKeywordLength = pragmaKeyword_upcase.Length;
 
-                    for (int lineNumber = 0; lineNumber < lines.Length; ++lineNumber)
+                    for (int lineNumber = 0; lineNumber < lines_upcase.Length; ++lineNumber)
                     {
                         #region Handle Pragma Assume
-                        string line = lines[lineNumber];
-                        int startPos = line.IndexOf(pragmaKeyword);
+                        string line = lines_upcase[lineNumber];
+                        int startPos = line.IndexOf(pragmaKeyword_upcase, StringComparison.Ordinal);
                         if (startPos != -1)
                         {
                             line = line.Substring(startPos + pragmaKeywordLength);
@@ -304,7 +305,9 @@ namespace AsmDude.Tools
                     this._threadPool2.Cancel(false);
 
                     AsmDudeToolsStatic.Output_INFO("AsmSimulator:Schedule_Reset_Async: going to start an new reset thread.");
+#pragma warning disable IDE0009 // Member access should be qualified.
                     this._thread_Result = this._threadPool2.QueueWorkItem(Reset_Private, WorkItemPriority.Lowest);
+#pragma warning restore IDE0009 // Member access should be qualified.
                 }
                 else
                 {
@@ -458,7 +461,7 @@ namespace AsmDude.Tools
                         }
                         //catch (Exception e)
                         // {
-                        //    AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:PreCalculate_LOCAL; e={1}", ToString(), e.ToString()));
+                        //    AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:PreCalculate_LOCAL; e={1}", ToString(), e.ToString()));
                         // }
                     }
                 }
@@ -597,7 +600,7 @@ namespace AsmDude.Tools
                                 }
                             }
                         }
-                        mnemonic = opcodeBase.Mnemonic;
+                        mnemonic = opcodeBase._mnemonic;
                         // cleanup
                         opcodeBase.Updates.regular?.Dispose();
                         opcodeBase.Updates.branch?.Dispose();
@@ -995,7 +998,7 @@ namespace AsmDude.Tools
             }
             catch (Exception e)
             {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:Has_Register_Value; e={1}", this.ToString(), e.ToString()));
+                AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Has_Register_Value; e={1}", this.ToString(), e.ToString()));
                 return (false, false);
             }
         }
@@ -1054,7 +1057,7 @@ namespace AsmDude.Tools
                         state = statesBefore[0];
                         break;
                     default:
-                        state = AsmSim.Tools.Collapse(statesBefore);
+                        state = Tools.Collapse(statesBefore);
                         foreach (State v in statesBefore)
                         {
                             v.Dispose();
@@ -1127,7 +1130,7 @@ namespace AsmDude.Tools
                         state = statesBefore[0];
                         break;
                     default:
-                        state = AsmSim.Tools.Collapse(statesBefore);
+                        state = Tools.Collapse(statesBefore);
                         foreach (State v in statesBefore)
                         {
                             v.Dispose();

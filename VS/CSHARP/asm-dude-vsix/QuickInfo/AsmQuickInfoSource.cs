@@ -34,7 +34,6 @@ namespace AsmDude.QuickInfo
     using AsmDude.SyntaxHighlighting;
     using AsmDude.Tools;
     using AsmTools;
-    using EnvDTE;
     using Microsoft.VisualStudio.Language.Intellisense;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Tagging;
@@ -79,12 +78,12 @@ namespace AsmDude.QuickInfo
                 }
                 else
                 {
-                    AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:AugmentQuickInfoSession; does not have have AsmDudeContentType: but has type {1}", this.ToString(), contentType));
+                    AsmDudeToolsStatic.Output_WARNING(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AugmentQuickInfoSession; does not have have AsmDudeContentType: but has type {1}", this.ToString(), contentType));
                 }
             }
             catch (Exception e)
             {
-                AsmDudeToolsStatic.Output_ERROR(string.Format("{0}:AugmentQuickInfoSession; e={1}", this.ToString(), e.ToString()));
+                AsmDudeToolsStatic.Output_ERROR(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AugmentQuickInfoSession; e={1}", this.ToString(), e.ToString()));
             }
         }
 
@@ -102,7 +101,7 @@ namespace AsmDude.QuickInfo
 
         public void Dispose()
         {
-            AsmDudeToolsStatic.Output_INFO(string.Format("{0}:Dispose", this.ToString()));
+            AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Dispose", this.ToString()));
         }
 
         #region Private Methods
@@ -116,7 +115,7 @@ namespace AsmDude.QuickInfo
             SnapshotPoint? triggerPoint = session.GetTriggerPoint(snapshot);
             if (!triggerPoint.HasValue)
             {
-                AsmDudeToolsStatic.Output_WARNING(string.Format("{0}:Handle: trigger point is null", this.ToString()));
+                AsmDudeToolsStatic.Output_WARNING(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Handle: trigger point is null", this.ToString()));
                 return;
             }
 
@@ -127,9 +126,9 @@ namespace AsmDude.QuickInfo
             {
                 SnapshotSpan tagSpan = keywordSpan.Value;
                 string keyword = tagSpan.GetText();
-                string keywordUpper = keyword.ToUpper();
+                string keyword_upcase = keyword.ToUpperInvariant();
 
-                AsmDudeToolsStatic.Output_INFO(string.Format("{0}:Handle: keyword=\"{1}\"; type={2}; file=\"{3}\"", this.ToString(), keyword, tag.Type, AsmDudeToolsStatic.GetFilename(session.TextView.TextBuffer)));
+                AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:Handle: keyword=\"{1}\"; type={2}; file=\"{3}\"", this.ToString(), keyword, tag.Type, AsmDudeToolsStatic.GetFilename(session.TextView.TextBuffer)));
                 applicableToSpan = snapshot.CreateTrackingSpan(tagSpan, SpanTrackingMode.EdgeInclusive);
 
                 TextBlock description = null;
@@ -141,7 +140,7 @@ namespace AsmDude.QuickInfo
                             description.Inlines.Add(Make_Run1("Keyword ", foreground));
                             description.Inlines.Add(Make_Run2(keyword, new SolidColorBrush(AsmDudeToolsStatic.ConvertColor(Settings.Default.SyntaxHighlighting_Misc))));
 
-                            string descr = this._asmDudeTools.Get_Description(keywordUpper);
+                            string descr = this._asmDudeTools.Get_Description(keyword_upcase);
                             if (descr.Length > 0)
                             {
                                 if (keyword.Length > (AsmDudePackage.MaxNumberOfCharsInToolTips / 2))
@@ -162,7 +161,7 @@ namespace AsmDude.QuickInfo
                             description.Inlines.Add(Make_Run1("Directive ", foreground));
                             description.Inlines.Add(Make_Run2(keyword, new SolidColorBrush(AsmDudeToolsStatic.ConvertColor(Settings.Default.SyntaxHighlighting_Directive))));
 
-                            string descr = this._asmDudeTools.Get_Description(keywordUpper);
+                            string descr = this._asmDudeTools.Get_Description(keyword_upcase);
                             if (descr.Length > 0)
                             {
                                 if (keyword.Length > (AsmDudePackage.MaxNumberOfCharsInToolTips / 2))
@@ -180,12 +179,12 @@ namespace AsmDude.QuickInfo
                     case AsmTokenType.Register:
                         {
                             int lineNumber = AsmDudeToolsStatic.Get_LineNumber(tagSpan);
-                            if (keywordUpper.StartsWith("%"))
+                            if (keyword_upcase.StartsWith("%", StringComparison.Ordinal))
                             {
-                                keywordUpper = keywordUpper.Substring(1); // remove the preceding % in AT&T syntax
+                                keyword_upcase = keyword_upcase.Substring(1); // remove the preceding % in AT&T syntax
                             }
 
-                            Rn reg = RegisterTools.ParseRn(keywordUpper, true);
+                            Rn reg = RegisterTools.ParseRn(keyword_upcase, true);
                             if (this._asmDudeTools.RegisterSwitchedOn(reg))
                             {
                                 RegisterTooltipWindow registerTooltipWindow = new RegisterTooltipWindow(foreground);
@@ -199,7 +198,7 @@ namespace AsmDude.QuickInfo
                     case AsmTokenType.MnemonicOff: // intentional fall through
                     case AsmTokenType.Jump:
                         {
-                            (Mnemonic mnemonic, _) = AsmSourceTools.ParseMnemonic_Att(keywordUpper, true);
+                            (Mnemonic mnemonic, _) = AsmSourceTools.ParseMnemonic_Att(keyword_upcase, true);
                             InstructionTooltipWindow instructionTooltipWindow = new InstructionTooltipWindow(foreground)
                             {
                                 Session = session, // set the owner of this windows such that we can manually close this window
@@ -245,7 +244,7 @@ namespace AsmDude.QuickInfo
                             string label = keyword;
                             string extra_Tag_Info = tag.Misc;
                             string full_Qualified_Label;
-                            if ((extra_Tag_Info != null) && extra_Tag_Info.Equals(AsmTokenTag.MISC_KEYWORD_PROTO))
+                            if ((extra_Tag_Info != null) && extra_Tag_Info.Equals(AsmTokenTag.MISC_KEYWORD_PROTO, StringComparison.Ordinal))
                             {
                                 full_Qualified_Label = label;
                             }
@@ -279,7 +278,7 @@ namespace AsmDude.QuickInfo
                         {
                             (bool valid, ulong value, int nBits) = AsmSourceTools.Evaluate_Constant(keyword);
                             string constantStr = valid
-                                ? value + "d = " + value.ToString("X") + "h = " + AsmSourceTools.ToStringBin(value, nBits) + "b"
+                                ? value + "d = " + value.ToString("X", AsmDudeToolsStatic.CultureUI) + "h = " + AsmSourceTools.ToStringBin(value, nBits) + "b"
                                 : keyword;
 
 
@@ -307,7 +306,7 @@ namespace AsmDude.QuickInfo
                             description.Inlines.Add(Make_Run1("User defined 1: ", foreground));
                             description.Inlines.Add(Make_Run2(keyword, new SolidColorBrush(AsmDudeToolsStatic.ConvertColor(Settings.Default.SyntaxHighlighting_Userdefined1))));
 
-                            string descr = this._asmDudeTools.Get_Description(keywordUpper);
+                            string descr = this._asmDudeTools.Get_Description(keyword_upcase);
                             if (descr.Length > 0)
                             {
                                 if (keyword.Length > (AsmDudePackage.MaxNumberOfCharsInToolTips / 2))
@@ -328,7 +327,7 @@ namespace AsmDude.QuickInfo
                             description.Inlines.Add(Make_Run1("User defined 2: ", foreground));
                             description.Inlines.Add(Make_Run2(keyword, new SolidColorBrush(AsmDudeToolsStatic.ConvertColor(Settings.Default.SyntaxHighlighting_Userdefined2))));
 
-                            string descr = this._asmDudeTools.Get_Description(keywordUpper);
+                            string descr = this._asmDudeTools.Get_Description(keyword_upcase);
                             if (descr.Length > 0)
                             {
                                 if (keyword.Length > (AsmDudePackage.MaxNumberOfCharsInToolTips / 2))
@@ -349,7 +348,7 @@ namespace AsmDude.QuickInfo
                             description.Inlines.Add(Make_Run1("User defined 3: ", foreground));
                             description.Inlines.Add(Make_Run2(keyword, new SolidColorBrush(AsmDudeToolsStatic.ConvertColor(Settings.Default.SyntaxHighlighting_Userdefined3))));
 
-                            string descr = this._asmDudeTools.Get_Description(keywordUpper);
+                            string descr = this._asmDudeTools.Get_Description(keyword_upcase);
                             if (descr.Length > 0)
                             {
                                 if (keyword.Length > (AsmDudePackage.MaxNumberOfCharsInToolTips / 2))
@@ -374,7 +373,7 @@ namespace AsmDude.QuickInfo
                     description.Focusable = true;
                     description.FontSize = AsmDudeToolsStatic.GetFontSize() + 2;
                     description.FontFamily = AsmDudeToolsStatic.GetFontType();
-                    //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:AugmentQuickInfoSession; setting description fontSize={1}; fontFamily={2}", this.ToString(), description.FontSize, description.FontFamily));
+                    //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:AugmentQuickInfoSession; setting description fontSize={1}; fontFamily={2}", this.ToString(), description.FontSize, description.FontFamily));
                     quickInfoContent.Add(description);
                 }
             }
@@ -431,7 +430,7 @@ namespace AsmDude.QuickInfo
                     string lineContent = (LabelGraph.Is_From_Main_File(id))
                         ? " :" + this._textBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber).GetText()
                         : string.Empty;
-                    sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format("Defined at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
+                    sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format(AsmDudeToolsStatic.CultureUI, "Defined at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
                 }
                 string result = sb.ToString();
                 return result.TrimEnd(Environment.NewLine.ToCharArray());
@@ -470,8 +469,8 @@ namespace AsmDude.QuickInfo
                     {
                         lineContent = string.Empty;
                     }
-                    sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format("Used at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
-                    //AsmDudeToolsStatic.Output_INFO(string.Format("{0}:getLabelDefDescription; sb=\"{1}\"", this.ToString(), sb.ToString()));
+                    sb.AppendLine(AsmDudeToolsStatic.Cleanup(string.Format(AsmDudeToolsStatic.CultureUI, "Used at LINE {0} ({1}){2}", lineNumber + 1, filename, lineContent)));
+                    //AsmDudeToolsStatic.Output_INFO(string.Format(AsmDudeToolsStatic.CultureUI, "{0}:getLabelDefDescription; sb=\"{1}\"", this.ToString(), sb.ToString()));
                 }
                 string result = sb.ToString();
                 return result.TrimEnd(Environment.NewLine.ToCharArray());

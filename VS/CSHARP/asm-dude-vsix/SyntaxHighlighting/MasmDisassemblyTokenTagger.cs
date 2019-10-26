@@ -91,24 +91,24 @@ namespace AsmDude
             {
                 ITextSnapshotLine containingLine = curSpan.Start.GetContainingLine();
 
-                string line_capitals = containingLine.GetText().ToUpper();
-                List<(int beginPos, int length, bool isLabel)> pos = new List<(int beginPos, int length, bool isLabel)>(AsmSourceTools.SplitIntoKeywordPos(line_capitals));
+                string line_upcase = containingLine.GetText().ToUpperInvariant();
+                List<(int beginPos, int length, bool isLabel)> pos = new List<(int beginPos, int length, bool isLabel)>(AsmSourceTools.SplitIntoKeywordPos(line_upcase));
 
                 int offset = containingLine.Start.Position;
                 int nKeywords = pos.Count;
 
                 // if the line does not contain a Mnemonic, assume it is a source code line and make it a remark
                 #region Check source code line
-                if (IsSourceCode(line_capitals, pos))
+                if (IsSourceCode(line_upcase, pos))
                 {
-                    yield return new TagSpan<AsmTokenTag>(NasmIntelTokenTagger.New_Span((0, line_capitals.Length, false), offset, curSpan), this._remark);
+                    yield return new TagSpan<AsmTokenTag>(NasmIntelTokenTagger.New_Span((0, line_upcase.Length, false), offset, curSpan), this._remark);
                     continue; // go to the next line
                 }
                 #endregion
 
                 for (int k = 0; k < nKeywords; k++)
                 {
-                    string asmToken = AsmSourceTools.Keyword(pos[k], line_capitals);
+                    string asmToken = AsmSourceTools.Keyword(pos[k], line_upcase);
 
                     // keyword k is a label definition
                     if (pos[k].isLabel)
@@ -130,7 +130,7 @@ namespace AsmDude
                                     break; // there are no next words
                                 }
 
-                                string asmToken2 = AsmSourceTools.Keyword(pos[k], line_capitals);
+                                string asmToken2 = AsmSourceTools.Keyword(pos[k], line_upcase);
                                 switch (asmToken2)
                                 {
                                     case "WORD":
@@ -147,7 +147,7 @@ namespace AsmDude
                                                 break;
                                             }
 
-                                            string asmToken3 = AsmSourceTools.Keyword(pos[k], line_capitals);
+                                            string asmToken3 = AsmSourceTools.Keyword(pos[k], line_upcase);
                                             switch (asmToken3)
                                             {
                                                 case "PTR":
@@ -178,7 +178,7 @@ namespace AsmDude
                             }
                         case AsmTokenType.UNKNOWN: // asmToken is not a known keyword, check if it is numerical
                             {
-                                if (asmToken.Equals("OFFSET"))
+                                if (asmToken.Equals("OFFSET", StringComparison.Ordinal))
                                 {
                                     yield return new TagSpan<AsmTokenTag>(NasmIntelTokenTagger.New_Span(pos[k], offset, curSpan), this._directive);
                                     k++; // goto the next word
@@ -193,7 +193,7 @@ namespace AsmDude
                                 {
                                     yield return new TagSpan<AsmTokenTag>(NasmIntelTokenTagger.New_Span(pos[k], offset, curSpan), this._constant);
                                 }
-                                else if (asmToken.StartsWith("\"") && asmToken.EndsWith("\""))
+                                else if (asmToken.StartsWith("\"", StringComparison.Ordinal) && asmToken.EndsWith("\"", StringComparison.Ordinal))
                                 {
                                     yield return new TagSpan<AsmTokenTag>(NasmIntelTokenTagger.New_Span(pos[k], offset, curSpan), this._constant);
                                 }
@@ -237,7 +237,7 @@ namespace AsmDude
             //{
             //    return true;
             //}
-            if (token.EndsWith("H"))
+            if (token.EndsWith("H", StringComparison.Ordinal))
             {
                 return true;
             }
