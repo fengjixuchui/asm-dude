@@ -396,10 +396,10 @@ namespace AsmTools
         /// <summary>Return from interrupt</summary>
         IRET,
 #pragma warning disable CA1720 // Identifier contains type name
-                              /// <summary>Software interrupt</summary>
+        /// <summary>Software interrupt</summary>
         INT,
 #pragma warning restore CA1720 // Identifier contains type name
-                              /// <summary>Interrupt on overflow</summary>
+        /// <summary>Interrupt on overflow</summary>
         INTO,
         /// <summary>Detect value out of range</summary>
         BOUND,
@@ -2481,15 +2481,15 @@ namespace AsmTools
 
     public static partial class AsmSourceTools
     {
-        private static readonly Dictionary<string, Mnemonic> _mnemonic_cache;
+        private static readonly Dictionary<string, Mnemonic> Mnemonic_cache_;
 
         /// <summary>Static class initializer for AsmSourceTools</summary>
         static AsmSourceTools()
         {
-            _mnemonic_cache = new Dictionary<string, Mnemonic>();
+            Mnemonic_cache_ = new Dictionary<string, Mnemonic>();
             foreach (Mnemonic mnemonic in Enum.GetValues(typeof(Mnemonic)))
             {
-                _mnemonic_cache.Add(mnemonic.ToString(), mnemonic);
+                Mnemonic_cache_.Add(mnemonic.ToString(), mnemonic);
             }
         }
 
@@ -2634,7 +2634,7 @@ namespace AsmTools
 
         public static Mnemonic ParseMnemonic(string str, bool strIsCapitals)
         {
-            return (_mnemonic_cache.TryGetValue(ToCapitals(str, strIsCapitals), out Mnemonic value)) ? value : Mnemonic.NONE;
+            return (Mnemonic_cache_.TryGetValue(ToCapitals(str, strIsCapitals), out Mnemonic value)) ? value : Mnemonic.NONE;
         }
 
         /// <summary>Parse the provided string that contains a Intel syntax mnemonic</summary>
@@ -4708,7 +4708,7 @@ namespace AsmTools
 
         public static bool IsMnemonic(string keyword, bool strIsCapitals)
         {
-            return _mnemonic_cache.ContainsKey(ToCapitals(keyword, strIsCapitals));
+            return Mnemonic_cache_.ContainsKey(ToCapitals(keyword, strIsCapitals));
         }
 
         public static bool IsMnemonic_Att(string keyword, bool strIsCapitals = false)
@@ -4735,7 +4735,8 @@ namespace AsmTools
             return IsMnemonic(str2.Substring(0, length - 1), true);
         }
 
-        public static void SpeedTestMnemonic()
+        /// <summary>Simple speed test to compare parsing of mnemonics vs a lookup map</summary>
+        public static void SpeedTestMnemonicParsing()
         {
             Stopwatch stopwatch1 = new Stopwatch();
             Stopwatch stopwatch2 = new Stopwatch();
@@ -4770,7 +4771,8 @@ namespace AsmTools
             Console.WriteLine("ParseMnemonic     " + stopwatch2.ElapsedMilliseconds + " ms");
         }
 
-        public static void SpeedTestRegister()
+        /// <summary>Simple speed test to compare parsing of registers vs a lookup map</summary>
+        public static void SpeedTestRegisterParsing()
         {
             Stopwatch stopwatch1 = new Stopwatch();
             Stopwatch stopwatch2 = new Stopwatch();

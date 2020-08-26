@@ -31,44 +31,47 @@ namespace AsmSim
 
     public class Tools
     {
-        private readonly Random _rand;
-        private readonly AsmParameters _p;
+        private readonly Random rand_;
+        private readonly AsmParameters p_;
 
         public StateConfig StateConfig { get; set; }
 
         public bool ShowUndefConstraints { get; set; }
 
         public Tools()
-            : this(new Dictionary<string, string>()) { }
+            : this(new Dictionary<string, string>(), string.Empty) { }
 
         public Tools(Tools other)
         {
             Contract.Requires(other != null);
 
-            this.Settings = new Dictionary<string, string>(other.Settings);
-            this._rand = other.Rand; //new Random();
-            this._p = other._p;
+            this.ContextSettings = new Dictionary<string, string>(other.ContextSettings);
+            this.rand_ = other.Rand; //new Random();
+            this.p_ = other.p_;
             this.Quiet = other.Quiet;
             this.ShowUndefConstraints = other.ShowUndefConstraints;
             this.StateConfig = other.StateConfig;
         }
 
-        public Tools(Dictionary<string, string> settings)
+        public Tools(Dictionary<string, string> contextSettings, string solverSetting = "")
         {
-            this.Settings = settings;
-            this._rand = new Random();
-            this._p = new AsmParameters();
+            this.ContextSettings = contextSettings;
+            this.SolverSetting = solverSetting;
+            this.rand_ = new Random();
+            this.p_ = new AsmParameters();
             this.Quiet = true;
             this.ShowUndefConstraints = false;
             this.StateConfig = new StateConfig();
             this.StateConfig.GetRegOn();
         }
 
-        public Dictionary<string, string> Settings { get; private set; }
+        public Dictionary<string, string> ContextSettings { get; private set; }
 
-        public Random Rand { get { return this._rand; } }
+        public string SolverSetting { get; private set; }
 
-        public AsmParameters Parameters { get { return this._p; } }
+        public Random Rand { get { return this.rand_; } }
+
+        public AsmParameters Parameters { get { return this.p_; } }
 
         public bool Quiet { get; set; }
 
@@ -435,6 +438,7 @@ namespace AsmSim
                     State result2 = new State(result, prev, true);
                     if (counter > 2)
                     {
+                        //TODO HJ 26 okt 2019 investigate dispose
                         result.Dispose();
                     }
 

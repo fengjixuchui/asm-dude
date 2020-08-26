@@ -24,6 +24,7 @@ namespace unit_tests_asm_z3
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Numerics; // for BigInt
     using AsmSim;
     using AsmTools;
@@ -41,7 +42,7 @@ namespace unit_tests_asm_z3
             Console.WriteLine("logToDisplay=" + LogToDisplay);
         }
 
-        private Tools CreateTools(int timeOut = AsmTestTools.DEFAULT_TIMEOUT)
+        private Tools CreateTools(string solverSetting = "", int timeOut = AsmTestTools.DEFAULT_TIMEOUT)
         {
             /* The following parameters can be set:
                     - proof (Boolean) Enable proof generation
@@ -64,10 +65,9 @@ namespace unit_tests_asm_z3
                 { "unsat_core", "false" },    // enable generation of unsat cores
                 { "model", "false" },         // enable model generation
                 { "proof", "false" },         // enable proof generation
-                { "timeout", timeOut.ToString() },
-                { "parallel", "true" },
+                { "timeout", timeOut.ToString(CultureInfo.InvariantCulture) },
             };
-            return new Tools(settings);
+            return new Tools(settings, solverSetting);
         }
 
         private State CreateState(Tools tools)
@@ -3842,7 +3842,7 @@ namespace unit_tests_asm_z3
         [TestMethod]
         public void Test_MnemonicZ3_PushPop_64bit_3()
         {
-            Tools tools = this.CreateTools(10000); // 1000=10sec
+            Tools tools = this.CreateTools(string.Empty, 60000); // 10000=10sec
             tools.StateConfig.Set_All_Off();
             tools.StateConfig.RAX = true;
             tools.StateConfig.RBX = true;
@@ -3856,6 +3856,10 @@ namespace unit_tests_asm_z3
                 State state = this.CreateState(tools);
 
                 state = Runner.SimpleStep_Forward(line1, state);
+                if (LogToDisplay)
+                {
+                    //Console.WriteLine("After \"" + line1 + "\", we know:\n" + state);
+                }
                 AsmTestTools.AreUnrelated(Rn.RAX, Rn.RBX, state);
 
                 state = Runner.SimpleStep_Forward(line2, state);
@@ -3893,7 +3897,7 @@ namespace unit_tests_asm_z3
                 state = Runner.SimpleStep_Forward(line2, state);
                 if (LogToDisplay)
                 {
-                    Console.WriteLine("After \"" + line2 + "\", we know:\n" + state);
+                    //Console.WriteLine("After \"" + line2 + "\", we know:\n" + state);
                 }
 
                 AsmTestTools.AreEqual(Rn.RAX, Rn.RBX, state);
